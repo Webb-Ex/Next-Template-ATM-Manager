@@ -1,11 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { SquareTerminal, MonitorCog, Receipt, Boxes, Shield, Banknote, Calculator, UserPen, FolderKanban, Network, Wallet, Globe, SquareUser, Landmark, SmartphoneNfc } from 'lucide-react'
 import { useTheme } from "next-themes"
 
 import { NavMain } from "./nav-main"
-import { NavProjects } from "./nav-project"
 import { NavUser } from "./nav-user"
 import { TeamSwitcher } from "./team-switcher"
 import {
