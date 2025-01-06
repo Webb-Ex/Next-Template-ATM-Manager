@@ -1,5 +1,6 @@
 "use client"
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
@@ -23,6 +24,11 @@ export default function SSEChart() {
   }, [])
 
   return (
+    <Card>
+      <CardHeader>
+        <CardTitle>SSE (Server Sent Events)</CardTitle>
+      </CardHeader>
+      <CardContent>
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
@@ -33,6 +39,8 @@ export default function SSEChart() {
         <Line type="monotone" dataKey="transactions" stroke="#82ca9d" />
       </LineChart>
     </ResponsiveContainer>
+    </CardContent>
+    </Card>
   )
 }
 
