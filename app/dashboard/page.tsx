@@ -1,8 +1,8 @@
 import { Suspense } from 'react'
-import ATMTable from "../components/atm-table"
-import ISRChart from "../components/isr-chart"
-import SSEChart from "../components/sse-chart"
-import { ATMCassettes } from '../components/atm-cassettes'
+import ATMTable from "@/components/atm-table"
+import ISRChart from "@/components/isr-chart"
+import SSEChart from "@/components/sse-chart"
+import { ATMCassettes } from '@/components/atm-cassettes'
 
 export default function DashboardPage() {
   return (

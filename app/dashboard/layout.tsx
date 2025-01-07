@@ -1,4 +1,4 @@
-import { AppSidebar } from "../components/app-sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
 import {
   SidebarInset,
   SidebarProvider,
@@ -13,9 +13,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ThemeProvider } from "../components/theme-provider"
-import { ThemeToggle } from "../components/theme-toggle"
-import { CommandMenu } from "../components/command-menu"
+import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { CommandMenu } from "@/components/command-menu"
 
 export default function DashboardLayout({
   children,

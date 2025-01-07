@@ -29,6 +29,11 @@ export const teamItems = [
     plan: "Free",
   },
   {
+    name: "ATM Manager",
+    logo: SquareTerminal,
+    plan: "Free",
+  },
+  {
     name: "Personalization",
     logo: UserPen,
     plan: "Free",
