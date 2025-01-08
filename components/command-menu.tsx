@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
-import { navMainItems, teamItems } from "./sidebar-data"
+import { navMainItems, solutionItems } from "./sidebar-data"
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter()
@@ -75,7 +75,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                 ))}
               </CommandPrimitive.Group>
               <CommandPrimitive.Group heading="Solutions">
-                {teamItems.map((item) => (
+                {solutionItems.map((item) => (
                   <CommandPrimitive.Item
                     key={item.name}
                     onSelect={() => runCommand(() => router.push('#'))}

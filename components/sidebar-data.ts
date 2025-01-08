@@ -7,73 +7,87 @@ export const userData = {
   role: "Administrator"
 }
 
-export const teamItems = [
+export const solutionItems = [
   {
     name: "Insights",
     logo: Boxes,
     plan: "Enterprise",
+    url: "#",
   },
   {
     name: "Master Portal",
     logo: Shield,
     plan: "Startup",
+    url: "#",
   },
   {
     name: "Payments",
     logo: Banknote,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Merchant and POS",
     logo: Calculator,
     plan: "Free",
+    url: "#",
   },
   {
     name: "ATM Manager",
     logo: SquareTerminal,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Personalization",
     logo: UserPen,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Product Manager",
     logo: FolderKanban,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Distribution Network",
     logo: Network,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Wallet Management",
     logo: Wallet,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Remittance",
     logo: Globe,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Customer Management",
     logo: SquareUser,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Digital Banking",
     logo: Landmark,
     plan: "Free",
+    url: "#",
   },
   {
     name: "Payment Gateway",
     logo: SmartphoneNfc,
     plan: "Free",
+    url: "#",
   },
-]
+];
+
 
 export const navMainItems = [
   {
