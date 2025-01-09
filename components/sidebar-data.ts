@@ -98,19 +98,19 @@ export const navMainItems = [
     items: [
       {
         title: "Profiles",
-        url: "#",
+        url: "/ATMManager/ATM",
       },
       {
         title: "Schedule Downtime",
-        url: "#",
+        url: "/ATMManager/ATMSchedules",
       },
       {
         title: "Message",
-        url: "#",
+        url: "/ATMManager/DynamicMsg",
       },
       {
         title: "Templates",
-        url: "#",
+        url: "/ATMManager/ATMTemplates",
       },
     ],
   },
