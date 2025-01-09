@@ -31,4 +31,10 @@ export const routeMap: Record<
     parent: "/ATMManager",
     group: "ATMs",
   },
+  "/Monitoring/Transactions": {
+    name: "Transactions",
+    link: "/Monitoring/Transactions",
+    parent: "/Monitoring",
+    group: "Monitoring",
+  },
 };

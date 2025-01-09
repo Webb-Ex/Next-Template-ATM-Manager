@@ -23,6 +23,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import Link from "next/link"
 
 // Sample data for the table
 const data = [
@@ -183,17 +184,14 @@ export default function ATMTable() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem disabled={!row.IsRestartATMAllowed}>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Restart ATM
+                        
+                        View
                       </DropdownMenuItem>
                       <DropdownMenuItem disabled={!row.IsMarkNonOperationalAllowed}>
-                        <PowerOff className="mr-2 h-4 w-4" />
-                        Mark Non-Operational
+                        Edit
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem>
-                        <Power className="mr-2 h-4 w-4" />
-                        View Details
+                        <Link href="/Monitoring/Transactions">View Transactions</Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
