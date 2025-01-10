@@ -345,8 +345,6 @@ export function TransactionTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(10); // Show 10 rows per page
   let socket: Socket;
 
   // Fetch initial data
@@ -377,8 +375,17 @@ export function TransactionTable() {
     // Listen for real-time updates
     socket.on("updateTable", (data) => {
       console.log("Real-time update:", data);
-      setTableData(data);
-      setFilteredData(data);
+
+      // Check if the received data is not empty
+      if (Array.isArray(data) && data.length > 0) {
+        // Add the new object at the top of the tableData and filteredData
+        setTableData((prevData) => [data[data.length - 1], ...prevData]);
+        setFilteredData((prevData) => [data[data.length - 1], ...prevData]);
+      } else {
+        // If the data is empty, clear the table
+        setTableData([]);
+        setFilteredData([]);
+      }
     });
 
     return () => {
@@ -404,24 +411,6 @@ export function TransactionTable() {
       rowSelection,
     },
   });
-
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredData.length / pageSize);
-
-  // Slice data for the current page
-  const pagedData = filteredData.slice(
-    pageIndex * pageSize,
-    (pageIndex + 1) * pageSize
-  );
-
-  // Pagination controls
-  const handlePreviousPage = () => {
-    setPageIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleNextPage = () => {
-    setPageIndex((prev) => Math.min(prev + 1, totalPages - 1));
-  };
 
   return (
     <div className="w-full">
@@ -505,13 +494,16 @@ export function TransactionTable() {
           <TableBody className="bg-gray-50">
             <AnimatePresence>
               {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
+                table.getRowModel().rows.map((row, index) => (
                   <motion.tr
                     key={row.id}
                     initial={{ opacity: 0, y: 20 }} // Initial state
                     animate={{ opacity: 1, y: 0 }} // Final state
                     exit={{ opacity: 0, y: -20 }} // Exit state (for removal)
-                    transition={{ duration: 0.3 }} // Control the transition speed
+                    transition={{
+                      duration: 0.3,
+                      delay: index === 0 ? 0 : 0.1, // Delay animation for first element (newly added)
+                    }}
                     data-state={row.getIsSelected() && "selected"}
                     className="border-b border-gray-300 hover:bg-blue-50"
                   >
