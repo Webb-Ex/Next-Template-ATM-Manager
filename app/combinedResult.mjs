@@ -30,6 +30,23 @@ async function fetchTransactionData() {
   return data;
 }
 
+let placeholder_data = [
+  {
+    transaction_type: ["Send Money", "Cash In", "Cash Out", "Purchase", "Withdrawal", "Deposit", "Refund", "Reversal", "Chargeback", "Fees", "Interest", "Others"],
+    currency_transaction: ["USD", "EUR", "GBP", "JPY", "CNY"],
+    acquirer_payment_entity: ["Visa", "Mastercard", "American Express", "Discover", "Others"],
+    issuer_channel: ["iHost", "Mobile", "Web", "ATM"],
+    product: ["ProductA", "ProductB", "ProductC", "ProductD", "Others"],
+    message_type: ["0200", "0300", "0400", "0800"],
+    pos_entry_mode: ["Magnetic", "Chip", "Contactless", "Others"],
+    response: ["117 - Approved", "120 - Declined", "121 - Insufficient funds", "122 - Invalid card", "123 - Invalid amount"],
+    payment_company: ["CompanyA", "CompanyB", "CompanyC", "CompanyD"],
+    acquirer_channel: ["ATM", "POS", "Web", "Mobile"],
+
+
+  }
+];
+
 // Function to insert data into Supabase
 async function insertTransactionData() {
   const { error } = await supabase.from("TransactionData").insert([
@@ -37,22 +54,22 @@ async function insertTransactionData() {
       id: Math.floor(100 + Math.random() * 900).toString(),
       created_at: new Date().toISOString(),
       pan: "1234567890123456",
-      transaction_type: "Purchase",
+      transaction_type: placeholder_data[0].transaction_type[Math.floor(Math.random() * placeholder_data[0].transaction_type.length)],
       stan: Math.floor(Math.random() * 100000).toString(), // Random STAN
-      acquirer_channel: "Online",
-      acquirer_payment_entity: "Visa",
-      issuer_channel: "Mobile",
-      product: "ProductA",
-      message_type: "Authorization",
-      pos_entry_mode: "Magnetic",
-      response: "Success",
+      acquirer_channel: placeholder_data[0].acquirer_channel[Math.floor(Math.random() * placeholder_data[0].acquirer_payment_entity.length)],
+      acquirer_payment_entity: placeholder_data[0].acquirer_payment_entity[Math.floor(Math.random() * placeholder_data[0].acquirer_payment_entity.length)],
+      issuer_channel: placeholder_data[0].issuer_channel[Math.floor(Math.random() * placeholder_data[0].issuer_channel.length)],
+      product: placeholder_data[0].product[Math.floor(Math.random() * placeholder_data[0].product.length)],
+      message_type: placeholder_data[0].message_type[Math.floor(Math.random() * placeholder_data[0].message_type.length)],
+      pos_entry_mode: placeholder_data[0].pos_entry_mode[Math.floor(Math.random() * placeholder_data[0].pos_entry_mode.length)],
+      response: placeholder_data[0].response[Math.floor(Math.random() * placeholder_data[0].response.length)],
       settlement_date: new Date(
         new Date().setDate(new Date().getDate() + 1)
       ).toISOString(), // Tomorrow's date
-      payment_company: "CompanyA",
+      payment_company: placeholder_data[0].payment_company[Math.floor(Math.random() * placeholder_data[0].payment_company.length)],
       actions: true,
       amount_transaction: (Math.random() * 100).toFixed(2), // Random amount
-      currency_transaction: "USD",
+      currency_transaction: placeholder_data[0].currency_transaction[Math.floor(Math.random() * placeholder_data[0].currency_transaction.length)],
     },
   ]);
 
