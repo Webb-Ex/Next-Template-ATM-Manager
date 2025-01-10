@@ -54,6 +54,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { motion, AnimatePresence } from "framer-motion";
+import { BarGraph } from "./bar-graph";
+import { HorizontalGraph } from "./horizontal-graph";
+import { AreaGraph } from "./area-graph";
+import { StackedBarGraph } from "./stacked-bargraph";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -80,11 +84,31 @@ export const columns: ColumnDef<any>[] = [
   },
   {
     accessorKey: "id",
-    header: "ID",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          ID
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "created_at",
-    header: "Created At",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created At
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => new Date(row.getValue("created_at")).toLocaleString(),
   },
   {
@@ -401,6 +425,21 @@ export function TransactionTable() {
 
   return (
     <div className="w-full">
+      <div className="flex gap-[20px]">
+        <div className="w-1/3">
+          <StackedBarGraph />
+        </div>
+        <div className="w-1/3">
+          <HorizontalGraph />
+        </div>
+        <div className="w-1/3">
+          <BarGraph />
+        </div>
+      </div>
+      <div className="mt-4">
+        <AreaGraph />
+      </div>
+
       <div className="flex items-center py-4">
         <Input
           placeholder="Search..."
@@ -439,12 +478,18 @@ export function TransactionTable() {
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
+        <Table className="min-w-full table-auto bg-gray-50 border-collapse">
+          <TableHeader className="bg-gray-800">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow
+                key={headerGroup.id}
+                className="border-b border-gray-300"
+              >
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="py-3 px-4 text-left text-sm font-semibold text-white"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -456,7 +501,8 @@ export function TransactionTable() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+
+          <TableBody className="bg-gray-50">
             <AnimatePresence>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
@@ -467,9 +513,13 @@ export function TransactionTable() {
                     exit={{ opacity: 0, y: -20 }} // Exit state (for removal)
                     transition={{ duration: 0.3 }} // Control the transition speed
                     data-state={row.getIsSelected() && "selected"}
+                    className="border-b border-gray-300 hover:bg-blue-50"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        className="py-3 px-4 text-sm text-gray-700"
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -479,10 +529,10 @@ export function TransactionTable() {
                   </motion.tr>
                 ))
               ) : (
-                <TableRow>
+                <TableRow className="text-center">
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 py-3 text-gray-500"
                   >
                     No results.
                   </TableCell>
@@ -492,7 +542,7 @@ export function TransactionTable() {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
+      <div className="flex items-center space-x-6 lg:space-x-8 mt-4">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select

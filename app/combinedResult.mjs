@@ -19,12 +19,48 @@ const io = new Server(server, {
 
 // Function to fetch data from Supabase
 async function fetchTransactionData() {
-  const { data, error } = await supabase.from("TransactionData").select("*");
+  const { data, error } = await supabase
+    .from("TransactionData")
+    .select("*")
+    .order("created_at", { ascending: false });
   if (error) {
     console.error("Error fetching data from Supabase:", error);
     return [];
   }
   return data;
+}
+
+// Function to insert data into Supabase
+async function insertTransactionData() {
+  const { error } = await supabase.from("TransactionData").insert([
+    {
+      id: Math.floor(100 + Math.random() * 900).toString(),
+      created_at: new Date().toISOString(),
+      pan: "1234567890123456",
+      transaction_type: "Purchase",
+      stan: Math.floor(Math.random() * 100000).toString(), // Random STAN
+      acquirer_channel: "Online",
+      acquirer_payment_entity: "Visa",
+      issuer_channel: "Mobile",
+      product: "ProductA",
+      message_type: "Authorization",
+      pos_entry_mode: "Magnetic",
+      response: "Success",
+      settlement_date: new Date(
+        new Date().setDate(new Date().getDate() + 1)
+      ).toISOString(), // Tomorrow's date
+      payment_company: "CompanyA",
+      actions: true,
+      amount_transaction: (Math.random() * 100).toFixed(2), // Random amount
+      currency_transaction: "USD",
+    },
+  ]);
+
+  if (error) {
+    console.error("Error inserting data into Supabase:", error);
+  } else {
+    console.log("Data inserted successfully");
+  }
 }
 
 // Realtime listener for database changes
@@ -40,6 +76,9 @@ supabase
     }
   )
   .subscribe();
+
+// Set up periodic insertion
+setInterval(insertTransactionData, 5000); // Inserts data every 5 seconds
 
 io.on("connection", async (socket) => {
   console.log("Client connected");
