@@ -63,7 +63,6 @@ async function insertTransactionData() {
   }
 }
 
-// Realtime listener for database changes
 supabase
   .channel("transaction-data")
   .on(
@@ -72,13 +71,12 @@ supabase
     async (payload) => {
       console.log("Change detected:", payload);
       const updatedData = await fetchTransactionData();
-      io.emit("updateTable", updatedData); // Notify clients
+      io.emit("updateTable", updatedData);
     }
   )
   .subscribe();
 
-// Set up periodic insertion
-setInterval(insertTransactionData, 5000); // Inserts data every 5 seconds
+setInterval(insertTransactionData, 5000);
 
 io.on("connection", async (socket) => {
   console.log("Client connected");

@@ -419,10 +419,10 @@ export function TransactionTable() {
           <StackedBarGraph />
         </div>
         <div className="w-1/3">
-          <HorizontalGraph />
+          <BarGraph />
         </div>
         <div className="w-1/3">
-          <BarGraph />
+          <HorizontalGraph />
         </div>
       </div>
       <div className="mt-4">
