@@ -1,12 +1,10 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -17,7 +15,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [{ count: "Transactions Count", member: 186, network: 80 }];
+
+interface BarGraphProps {
+  chartData: Array<{ count: string; member: number; network: number }>;
+}
 
 const chartConfig = {
   member: {
@@ -30,7 +31,10 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function BarGraph() {
+export function BarGraph({ chartData }: BarGraphProps) {
+
+  // chartData = [{ count: "Transactions Count", member: 186, network: 80 }];
+
   return (
     <Card>
       <CardHeader>
@@ -45,7 +49,7 @@ export function BarGraph() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              //   tickFormatter={(value) => value.slice(0, 3)}
+            //   tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
               cursor={false}

@@ -17,10 +17,18 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { transaction: "member", decliners: 275, fill: "var(--color-member)" },
-  { transaction: "network", decliners: 200, fill: "var(--color-network)" },
-];
+// const chartData = [
+//   { transaction: "member", decliners: 275, fill: "var(--color-member)" },
+//   { transaction: "network", decliners: 200, fill: "var(--color-network)" },
+// ];
+
+interface HorizontalGraphData {
+  horizontalChartData: Array<{
+    transaction: string;
+    decliners: number;
+    fill: string;
+  }>;
+}
 
 const chartConfig = {
   decliners: {
@@ -36,7 +44,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function HorizontalGraph() {
+export function HorizontalGraph({ horizontalChartData }: HorizontalGraphData) {
   return (
     <Card>
       <CardHeader>
@@ -46,7 +54,7 @@ export function HorizontalGraph() {
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
-            data={chartData}
+            data={horizontalChartData}
             layout="vertical"
             margin={{
               left: 0,

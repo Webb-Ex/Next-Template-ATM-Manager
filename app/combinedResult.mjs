@@ -22,7 +22,6 @@ async function fetchTransactionData() {
   const { data, error } = await supabase
     .from("TransactionData")
     .select("*")
-    .order("created_at", { ascending: false });
   if (error) {
     console.error("Error fetching data from Supabase:", error);
     return [];
@@ -42,8 +41,8 @@ let placeholder_data = [
     response: ["117 - Approved", "120 - Declined", "121 - Insufficient funds", "122 - Invalid card", "123 - Invalid amount"],
     payment_company: ["CompanyA", "CompanyB", "CompanyC", "CompanyD"],
     acquirer_channel: ["ATM", "POS", "Web", "Mobile"],
-
-
+    member_transaction: [false, true],
+    member_decliner: [false, true],
   }
 ];
 
@@ -70,6 +69,8 @@ async function insertTransactionData() {
       actions: true,
       amount_transaction: (Math.random() * 100).toFixed(2), // Random amount
       currency_transaction: placeholder_data[0].currency_transaction[Math.floor(Math.random() * placeholder_data[0].currency_transaction.length)],
+      member_transaction: placeholder_data[0].member_transaction[Math.floor(Math.random() * placeholder_data[0].member_transaction.length)],
+      member_decliner: placeholder_data[0].member_decliner[Math.floor(Math.random() * placeholder_data[0].member_decliner.length)],
     },
   ]);
 
