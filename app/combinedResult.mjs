@@ -32,7 +32,6 @@ async function fetchTransactionData() {
 let placeholder_data = [
   {
     transaction_type: ["Send Money", "Cash In", "Cash Out", "Purchase", "Withdrawal", "Deposit", "Refund", "Reversal", "Chargeback", "Fees", "Interest", "Others"],
-    currency_transaction: ["USD", "EUR", "GBP", "JPY", "CNY"],
     acquirer_payment_entity: ["Visa", "Mastercard", "American Express", "Discover", "Others"],
     issuer_channel: ["iHost", "Mobile", "Web", "ATM"],
     product: ["ProductA", "ProductB", "ProductC", "ProductD", "Others"],
@@ -67,8 +66,8 @@ async function insertTransactionData() {
       ).toISOString(), // Tomorrow's date
       payment_company: placeholder_data[0].payment_company[Math.floor(Math.random() * placeholder_data[0].payment_company.length)],
       actions: true,
-      amount_transaction: (Math.random() * 100).toFixed(2), // Random amount
-      currency_transaction: placeholder_data[0].currency_transaction[Math.floor(Math.random() * placeholder_data[0].currency_transaction.length)],
+      amount_transaction: (Math.random() * 10000).toFixed(2), // Random amount
+      currency_transaction: "PKR",
       member_transaction: placeholder_data[0].member_transaction[Math.floor(Math.random() * placeholder_data[0].member_transaction.length)],
       member_decliner: placeholder_data[0].member_decliner[Math.floor(Math.random() * placeholder_data[0].member_decliner.length)],
     },

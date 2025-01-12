@@ -287,10 +287,7 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "amount_transaction",
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount_transaction"));
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: row.original.currency_transaction,
-      }).format(amount);
+      return amount.toLocaleString();
     },
     header: ({ column }) => {
       return (
@@ -499,6 +496,8 @@ export function TransactionTable() {
     },
   });
 
+  
+
   return (
     <div className="w-full">
       <div className="flex gap-[20px]">
@@ -509,7 +508,7 @@ export function TransactionTable() {
           <BarGraph chartData={chartData} />
         </div>
         <div className="w-1/3">
-          <HorizontalGraph horizontalChartData={horizontalChartData}/>
+          <HorizontalGraph horizontalChartData={horizontalChartData} />
         </div>
       </div>
       <div className="mt-4">
@@ -597,7 +596,7 @@ export function TransactionTable() {
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="py-3 px-4 text-sm text-gray-700"
+                        className="py-3 px-4 text-sm text-center text-gray-700"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
