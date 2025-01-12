@@ -66,7 +66,7 @@ async function insertTransactionData() {
       ).toISOString(), // Tomorrow's date
       payment_company: placeholder_data[0].payment_company[Math.floor(Math.random() * placeholder_data[0].payment_company.length)],
       actions: true,
-      amount_transaction: (Math.random() * 10000).toFixed(2), // Random amount
+      amount_transaction: Math.floor(Math.random() * (1000000 - 100000) + 100000),
       currency_transaction: "PKR",
       member_transaction: placeholder_data[0].member_transaction[Math.floor(Math.random() * placeholder_data[0].member_transaction.length)],
       member_decliner: placeholder_data[0].member_decliner[Math.floor(Math.random() * placeholder_data[0].member_decliner.length)],
@@ -93,7 +93,7 @@ supabase
   )
   .subscribe();
 
-setInterval(insertTransactionData, 5000);
+setInterval(insertTransactionData, Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000);
 
 io.on("connection", async (socket) => {
   console.log("Client connected");

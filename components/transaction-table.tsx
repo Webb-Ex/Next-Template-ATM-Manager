@@ -398,6 +398,12 @@ type HorizontalChartDataItem = {
   fill: string;
 };
 
+type AreaChartDataItem = {
+  time: string;
+  transactions: number;
+  amount: number;
+};
+
 export function TransactionTable() {
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -414,6 +420,10 @@ export function TransactionTable() {
   const [horizontalChartData, setHorizontalChartData] = useState<HorizontalChartDataItem[]>([
     { transaction: "member", decliners: 0, fill: "var(--color-member)" },
     { transaction: "network", decliners: 0, fill: "var(--color-network)" },
+  ]);
+
+  const [areaChartData, setAreaChartData] = useState<AreaChartDataItem[]>([
+    { time: "", transactions: 0, amount: 0 },
   ]);
 
   const socketRef = useRef<Socket | null>(null);
@@ -443,6 +453,9 @@ export function TransactionTable() {
 
       if (Array.isArray(data) && data.length > 0) {
         const newEntry = data[data.length - 1];
+        const entryTime = new Date(newEntry.created_at);
+        const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
+
 
         setFilteredData((prevData) => [newEntry, ...prevData]);
         setChartData((prevChartData) => {
@@ -463,6 +476,36 @@ export function TransactionTable() {
             return item; // No changes for other items
           });
         });
+
+        setAreaChartData((prevChartData) => {
+          const existingTimeSlot = prevChartData.find(
+            (item) => item.time === timeKey
+          );
+
+          if (existingTimeSlot) {
+            // If time slot already exists, update transactions and amount
+            return prevChartData.map((item) =>
+              item.time === timeKey
+                ? {
+                  ...item,
+                  transactions: item.transactions + 1,
+                  amount: item.amount + newEntry.amount_transaction,
+                }
+                : item
+            );
+          } else {
+            // If time slot doesn't exist, add a new entry
+            return [
+              ...prevChartData,
+              {
+                time: timeKey,
+                transactions: 1,
+                amount: newEntry.amount_transaction,
+              },
+            ];
+          }
+        });
+
       }
     };
 
@@ -496,7 +539,7 @@ export function TransactionTable() {
     },
   });
 
-  
+  console.log("filteredData", filteredData)
 
   return (
     <div className="w-full">
@@ -512,7 +555,7 @@ export function TransactionTable() {
         </div>
       </div>
       <div className="mt-4">
-        <AreaGraph />
+        <AreaGraph areaChartData={areaChartData} />
       </div>
 
       <div className="flex items-center py-4">
