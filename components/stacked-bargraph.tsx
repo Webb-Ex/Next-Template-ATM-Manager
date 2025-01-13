@@ -20,22 +20,23 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+  { ratio: "Maximum", second: 186, minute: 80, hour: 43 },
+  { ratio: "Average", second: 305, minute: 200, hour: 67 },
+  { ratio: "Minimum", second: 237, minute: 120, hour: 88 },
 ];
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  second: {
+    label: "Per Second",
     color: "hsl(var(--chart-1))",
   },
-  mobile: {
-    label: "Mobile",
+  minute: {
+    label: "Per Minute",
     color: "hsl(var(--chart-2))",
+  },
+  hour: {
+    label: "Per Hour",
+    color: "hsl(var(--chart-3))",
   },
 } satisfies ChartConfig;
 
@@ -43,15 +44,14 @@ export function StackedBarGraph() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Stacked + Legend</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Transaction Performance</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="ratio"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
@@ -60,26 +60,29 @@ export function StackedBarGraph() {
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar
-              dataKey="desktop"
+              dataKey="second"
               stackId="a"
-              fill="var(--color-desktop)"
+              fill="var(--color-second)"
               radius={[0, 0, 4, 4]}
             />
             <Bar
-              dataKey="mobile"
+              dataKey="minute"
               stackId="a"
-              fill="var(--color-mobile)"
+              fill="var(--color-minute)"
+              radius={[0, 0, 0, 0]}
+            />
+            <Bar
+              dataKey="hour"
+              stackId="a"
+              fill="var(--color-hour)"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing Transaction Performance
         </div>
       </CardFooter>
     </Card>

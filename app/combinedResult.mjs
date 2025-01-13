@@ -22,7 +22,6 @@ async function fetchTransactionData() {
   const { data, error } = await supabase
     .from("TransactionData")
     .select("*")
-    .order("created_at", { ascending: false });
   if (error) {
     console.error("Error fetching data from Supabase:", error);
     return [];
@@ -33,7 +32,6 @@ async function fetchTransactionData() {
 let placeholder_data = [
   {
     transaction_type: ["Send Money", "Cash In", "Cash Out", "Purchase", "Withdrawal", "Deposit", "Refund", "Reversal", "Chargeback", "Fees", "Interest", "Others"],
-    currency_transaction: ["USD", "EUR", "GBP", "JPY", "CNY"],
     acquirer_payment_entity: ["Visa", "Mastercard", "American Express", "Discover", "Others"],
     issuer_channel: ["iHost", "Mobile", "Web", "ATM"],
     product: ["ProductA", "ProductB", "ProductC", "ProductD", "Others"],
@@ -42,8 +40,8 @@ let placeholder_data = [
     response: ["117 - Approved", "120 - Declined", "121 - Insufficient funds", "122 - Invalid card", "123 - Invalid amount"],
     payment_company: ["CompanyA", "CompanyB", "CompanyC", "CompanyD"],
     acquirer_channel: ["ATM", "POS", "Web", "Mobile"],
-
-
+    member_transaction: [false, true],
+    member_decliner: [false, true],
   }
 ];
 
@@ -68,8 +66,10 @@ async function insertTransactionData() {
       ).toISOString(), // Tomorrow's date
       payment_company: placeholder_data[0].payment_company[Math.floor(Math.random() * placeholder_data[0].payment_company.length)],
       actions: true,
-      amount_transaction: (Math.random() * 100).toFixed(2), // Random amount
-      currency_transaction: placeholder_data[0].currency_transaction[Math.floor(Math.random() * placeholder_data[0].currency_transaction.length)],
+      amount_transaction: Math.floor(Math.random() * (1000000 - 100000) + 100000),
+      currency_transaction: "PKR",
+      member_transaction: placeholder_data[0].member_transaction[Math.floor(Math.random() * placeholder_data[0].member_transaction.length)],
+      member_decliner: placeholder_data[0].member_decliner[Math.floor(Math.random() * placeholder_data[0].member_decliner.length)],
     },
   ]);
 
@@ -80,7 +80,6 @@ async function insertTransactionData() {
   }
 }
 
-// Realtime listener for database changes
 supabase
   .channel("transaction-data")
   .on(
@@ -89,13 +88,12 @@ supabase
     async (payload) => {
       console.log("Change detected:", payload);
       const updatedData = await fetchTransactionData();
-      io.emit("updateTable", updatedData); // Notify clients
+      io.emit("updateTable", updatedData);
     }
   )
   .subscribe();
 
-// Set up periodic insertion
-setInterval(insertTransactionData, 5000); // Inserts data every 5 seconds
+setInterval(insertTransactionData, Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000);
 
 io.on("connection", async (socket) => {
   console.log("Client connected");

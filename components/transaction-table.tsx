@@ -15,15 +15,17 @@ import {
 } from "@tanstack/react-table";
 import {
   ArrowUpDown,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   MoreHorizontal,
+  X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
 import { Button } from "@/components/ui/button";
@@ -285,10 +287,7 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "amount_transaction",
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount_transaction"));
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: row.original.currency_transaction,
-      }).format(amount);
+      return amount.toLocaleString();
     },
     header: ({ column }) => {
       return (
@@ -317,6 +316,58 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
+    accessorKey: "member_transaction",
+    cell: ({ row }) => {
+      const isTrue = row.getValue("member_transaction");
+      return (
+        <div className="flex items-center justify-center">
+          {isTrue ? (
+            <Check className="text-green-500 h-5 w-5" />
+          ) : (
+            <X className="text-red-500 h-5 w-5" />
+          )}
+        </div>
+      );
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Member Transaction
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "member_decliner",
+    cell: ({ row }) => {
+      const isTrue = row.getValue("member_decliner");
+      return (
+        <div className="flex items-center justify-center">
+          {isTrue ? (
+            <Check className="text-green-500 h-5 w-5" />
+          ) : (
+            <X className="text-red-500 h-5 w-5" />
+          )}
+        </div>
+      );
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Member Decliner
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
@@ -335,8 +386,25 @@ export const columns: ColumnDef<any>[] = [
   },
 ];
 
+type ChartDataItem = {
+  count: string;
+  member: number;
+  network: number;
+};
+
+type HorizontalChartDataItem = {
+  transaction: string;
+  decliners: number;
+  fill: string;
+};
+
+type AreaChartDataItem = {
+  time: string;
+  transactions: number;
+  amount: number;
+};
+
 export function TransactionTable() {
-  const [tableData, setTableData] = useState<any[]>([]);
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -345,9 +413,21 @@ export function TransactionTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  let socket: Socket;
+  const [chartData, setChartData] = useState<ChartDataItem[]>([
+    { count: "Transactions Count", member: 0, network: 0 },
+  ]);
 
-  // Fetch initial data
+  const [horizontalChartData, setHorizontalChartData] = useState<HorizontalChartDataItem[]>([
+    { transaction: "member", decliners: 0, fill: "var(--color-member)" },
+    { transaction: "network", decliners: 0, fill: "var(--color-network)" },
+  ]);
+
+  const [areaChartData, setAreaChartData] = useState<AreaChartDataItem[]>([
+    { time: "", transactions: 0, amount: 0 },
+  ]);
+
+  const socketRef = useRef<Socket | null>(null);
+
   const fetchData = async () => {
     try {
       const { data, error } = await supabase
@@ -357,41 +437,88 @@ export function TransactionTable() {
       if (error) {
         throw new Error(error.message);
       }
-
-      setTableData(data || []);
       setFilteredData(data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  // UseEffect to fetch initial data and set up socket connection
   useEffect(() => {
     fetchData();
 
-    // Set up socket connection
-    socket = io("http://localhost:3000");
+    socketRef.current = io("http://localhost:3000");
 
-    // Listen for real-time updates
-    socket.on("updateTable", (data) => {
+    const handleUpdateTable = (data: unknown) => {
       console.log("Real-time update:", data);
 
-      // Check if the received data is not empty
       if (Array.isArray(data) && data.length > 0) {
-        // Add the new object at the top of the tableData and filteredData
-        setTableData((prevData) => [data[data.length - 1], ...prevData]);
-        setFilteredData((prevData) => [data[data.length - 1], ...prevData]);
-      } else {
-        // If the data is empty, clear the table
-        setTableData([]);
-        setFilteredData([]);
+        const newEntry = data[data.length - 1];
+        const entryTime = new Date(newEntry.created_at);
+        const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
+
+
+        setFilteredData((prevData) => [newEntry, ...prevData]);
+        setChartData((prevChartData) => {
+          return prevChartData.map((item) => ({
+            ...item,
+            member: item.member + (newEntry.member_transaction ? 1 : 0),
+            network: item.network + (newEntry.member_transaction ? 0 : 1),
+          }));
+        });
+        setHorizontalChartData((prevChartData) => {
+          return prevChartData.map((item) => {
+            if (item.transaction === "member" && newEntry.member_decliner) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (item.transaction === "network" && !newEntry.member_decliner) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            return item; // No changes for other items
+          });
+        });
+
+        setAreaChartData((prevChartData) => {
+          const existingTimeSlot = prevChartData.find(
+            (item) => item.time === timeKey
+          );
+
+          if (existingTimeSlot) {
+            // If time slot already exists, update transactions and amount
+            return prevChartData.map((item) =>
+              item.time === timeKey
+                ? {
+                  ...item,
+                  transactions: item.transactions + 1,
+                  amount: item.amount + newEntry.amount_transaction,
+                }
+                : item
+            );
+          } else {
+            // If time slot doesn't exist, add a new entry
+            return [
+              ...prevChartData,
+              {
+                time: timeKey,
+                transactions: 1,
+                amount: newEntry.amount_transaction,
+              },
+            ];
+          }
+        });
+
       }
-    });
+    };
+
+    socketRef.current.on("updateTable", handleUpdateTable);
 
     return () => {
-      socket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current.off("updateTable", handleUpdateTable);
+      }
     };
   }, []);
+
 
   const table = useReactTable({
     data: filteredData,
@@ -412,6 +539,8 @@ export function TransactionTable() {
     },
   });
 
+  console.log("filteredData", filteredData)
+
   return (
     <div className="w-full">
       <div className="flex gap-[20px]">
@@ -419,14 +548,14 @@ export function TransactionTable() {
           <StackedBarGraph />
         </div>
         <div className="w-1/3">
-          <HorizontalGraph />
+          <BarGraph chartData={chartData} />
         </div>
         <div className="w-1/3">
-          <BarGraph />
+          <HorizontalGraph horizontalChartData={horizontalChartData} />
         </div>
       </div>
       <div className="mt-4">
-        <AreaGraph />
+        <AreaGraph areaChartData={areaChartData} />
       </div>
 
       <div className="flex items-center py-4">
@@ -482,9 +611,9 @@ export function TransactionTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -510,7 +639,7 @@ export function TransactionTable() {
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="py-3 px-4 text-sm text-gray-700"
+                        className="py-3 px-4 text-sm text-center text-gray-700"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
