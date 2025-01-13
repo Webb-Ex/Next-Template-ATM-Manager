@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -73,10 +72,31 @@ export function TeamSwitcher({
                     <team.logo className="size-4 shrink-0" />
                   </div>
                 </Link>
-                {team.name}
+                <Link href={team.url}>{team.name}</Link>
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
+
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              Functions
+            </DropdownMenuLabel>
+
+            {teams.map((team, index) => (
+              <DropdownMenuItem
+                key={team.name}
+                onClick={() => setActiveTeam(team)}
+                className="gap-2 p-2"
+              >
+                <Link href={team.url}>
+                  <div className="flex size-6 items-center justify-center rounded-sm border">
+                    <team.logo className="size-4 shrink-0" />
+                  </div>
+                </Link>
+                <Link href={team.url}>{team.name}</Link>
+                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            ))}
+            
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

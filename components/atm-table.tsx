@@ -99,7 +99,7 @@ export default function ATMTable() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">ATM Management</h2>
+        {/* <h2 className="text-lg font-semibold">ATM Management</h2> */}
         <div className="flex gap-2">
           <Button variant="outline" size="icon">
             <Plus className="h-4 w-4" />

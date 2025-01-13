@@ -1,4 +1,4 @@
-import { Boxes, Shield, Banknote, Calculator, PenIcon as UserPen, FolderKanban, Network, Wallet, Globe, SquareUser, Landmark, SmartphoneNfc, SquareTerminal, Receipt, MonitorIcon as MonitorCog } from 'lucide-react'
+import { Boxes, Shield, Banknote, Calculator, PenIcon as UserPen, FolderKanban, Network, Wallet, Globe, SquareUser, Landmark, SmartphoneNfc, SquareTerminal, Receipt, MonitorIcon as MonitorCog, Hand, Handshake, Layers, LucideNotebookTabs, NotebookIcon } from 'lucide-react'
 
 export const userData = {
   name: "Iris Admin",
@@ -36,7 +36,7 @@ export const solutionItems = [
     name: "ATM Manager",
     logo: SquareTerminal,
     plan: "Free",
-    url: "#",
+    url: "/ATMManager/ATM",
   },
   {
     name: "Personalization",
@@ -88,6 +88,50 @@ export const solutionItems = [
   },
 ];
 
+export const functionItems = [
+  {
+    name: "Security",
+    logo: Shield,
+    plan: "Enterprise",
+    url: "#",
+  },
+  {
+    name: "Configuration",
+    logo: MonitorCog,
+    plan: "Enterprise",
+    url: "#",
+  },
+  {
+    name: "Monitoring",
+    logo: Network,
+    plan: "Enterprise",
+    url: "/Monitoring/Transactions",
+  },
+  {
+    name: "Settlement",
+    logo: Handshake,
+    plan: "Enterprise",
+    url: "#",
+  },
+  {
+    name: "Bulk Operations",
+    logo: Layers,
+    plan: "Enterprise",
+    url: "#",
+  },
+  {
+    name: "Reports",
+    logo: LucideNotebookTabs,
+    plan: "Enterprise",
+    url: "#",
+  },
+  {
+    name: "Ticket Manager",
+    logo: NotebookIcon,
+    plan: "Enterprise",
+    url: "#",
+  },
+]
 
 export const navMainItems = [
   {
