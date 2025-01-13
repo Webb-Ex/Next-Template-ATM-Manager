@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { MoreHorizontal, Plus, Trash, RefreshCw, Power, PowerOff } from 'lucide-react'
-
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import {
+  MoreHorizontal,
+  Plus,
+  Trash,
+  RefreshCw,
+  Power,
+  PowerOff,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -19,88 +25,167 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import Link from "next/link"
+} from "@/components/ui/table";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 
-// Sample data for the table
-const data = [
-  {
-    "Id": "2950",
-    "TerminalId": "T001",
-    "DisplayId": "4498",
-    "IpAddress": "10.100.82.36",
-    "ConfigurationGroup": "1947",
-    "TLSEnabled": "TWO-WAY",
-    "ProcessGroup": "1",
-    "Make": "NCR",
-    "Location": "PAKISTAN                 KHI          PK",
-    "BranchCode": "2345",
-    "City": "Karachi",
-    "Region": "Sindh",
-    "IsOffsite": "In-Premises",
-    "CommsStatus": "Down",
-    "State": "Pending",
-    "ConfigLoadStatus": "100",
-    "KeyLoadStatus": "Loaded",
-    "IsMarkNonOperationalAllowed": true,
-    "IsRestartATMAllowed": true,
-  },
-  // Add more sample data here...
-]
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
+import { ATMTableSkeleton } from "./skeletons/atm-table-skeleton";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ATMTable() {
-  const [selectedRows, setSelectedRows] = React.useState<string[]>([])
-  const [currentPage, setCurrentPage] = React.useState(1)
-  const itemsPerPage = 10
+  const [atmData, setAtmData] = React.useState<any[]>([]);
+  const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const itemsPerPage = 10;
+  const socketRef = React.useRef<any>(null);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.from("ATMs").select("*");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setAtmData(data || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    console.log("Fetching data...");
+
+    fetchData();
+
+    const channel = supabase
+      .channel("public:ATMs")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "ATMs" },
+        (payload) => {
+          // Handle the real-time update
+          console.log("Update payload:", payload);
+
+          setAtmData((prevData) =>
+            prevData.map((atm) =>
+              atm.Id === payload.new.Id ? payload.new : atm
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    // Cleanup on component unmount
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+
+  const totalPages = Math.ceil(atmData.length / itemsPerPage);
+  const paginatedData = atmData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const toggleRowSelection = (id: string) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
-    )
-  }
+    );
+  };
 
   const toggleAllRows = () => {
     setSelectedRows((prev) =>
-      prev.length === data.length ? [] : data.map((row) => row.Id)
-    )
-  }
+      prev.length === atmData.length ? [] : atmData.map((row) => row.Id)
+    );
+  };
 
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'down':
-        return 'destructive'
-      case 'up':
-        return 'default'
+      case "down":
+        return "destructive";
+      case "up":
+        return "default";
       default:
-        return 'secondary'
+        return "secondary";
     }
-  }
+  };
 
   const getStateVariant = (state: string) => {
     switch (state.toLowerCase()) {
-      case 'pending':
-        return 'warning'
-      case 'active':
-        return 'success'
+      case "pending":
+        return "outline";
+      case "active":
+        return "default";
       default:
-        return 'secondary'
+        return "secondary";
     }
-  }
+  };
 
-  const totalPages = Math.ceil(data.length / itemsPerPage)
-  const paginatedData = data.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
+  if (isLoading) {
+    return <ATMTableSkeleton />;
+  }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        {/* <h2 className="text-lg font-semibold">ATM Management</h2> */}
+        <div className="">
+          <h2 className="text-xl">ATM Profiles</h2>
+        </div>
         <div className="flex gap-2">
+          <Menubar>
+            <MenubarMenu>
+              <MenubarTrigger>Change Log Type</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>
+                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                </MenubarItem>
+
+              </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>Change Status</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>
+                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                </MenubarItem>
+
+              </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>Load Settings</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>
+                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                </MenubarItem>
+
+              </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>Change State</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem>
+                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+
           <Button variant="outline" size="icon">
             <Plus className="h-4 w-4" />
           </Button>
@@ -123,7 +208,7 @@ export default function ATMTable() {
               <TableHead>ATM Info</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Configuration</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Comms / Status</TableHead>
               <TableHead>Load Status</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -139,8 +224,12 @@ export default function ATMTable() {
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">ID: {row.DisplayId}</div>
-                  <div className="text-sm text-muted-foreground">Terminal: {row.TerminalId}</div>
-                  <div className="text-sm text-muted-foreground">IP: {row.IpAddress}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Terminal: {row.TerminalId}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    IP: {row.IpAddress}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div>{row.Location}</div>
@@ -153,12 +242,21 @@ export default function ATMTable() {
                 </TableCell>
                 <TableCell>
                   <div>Group: {row.ConfigurationGroup}</div>
-                  <div className="text-sm text-muted-foreground">Process: {row.ProcessGroup}</div>
-                  <div className="text-sm text-muted-foreground">TLS: {row.TLSEnabled}</div>
-                  <div className="text-sm text-muted-foreground">Make: {row.Make}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Process: {row.ProcessGroup}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    TLS: {row.TLSEnabled}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Make: {row.Make}
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getStatusVariant(row.CommsStatus)} className="mb-1">
+                  <Badge
+                    variant={getStatusVariant(row.CommsStatus)}
+                    className="mb-1 me-1"
+                  >
                     {row.CommsStatus}
                   </Badge>
                   <Badge variant={getStateVariant(row.State)}>
@@ -168,8 +266,13 @@ export default function ATMTable() {
                 <TableCell>
                   <div className="space-y-1">
                     <div className="text-sm font-medium">Config</div>
-                    <Progress value={parseInt(row.ConfigLoadStatus)} className="w-[60px]" />
-                    <div className="text-sm text-muted-foreground">{row.ConfigLoadStatus}%</div>
+                    <Progress
+                      value={parseInt(row.ConfigLoadStatus)}
+                      className="w-[60px]"
+                    />
+                    <div className="text-sm text-muted-foreground">
+                      {row.ConfigLoadStatus}%
+                    </div>
                   </div>
                   <div className="text-sm mt-2">Key: {row.KeyLoadStatus}</div>
                 </TableCell>
@@ -184,14 +287,17 @@ export default function ATMTable() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem disabled={!row.IsRestartATMAllowed}>
-                        
                         View
                       </DropdownMenuItem>
-                      <DropdownMenuItem disabled={!row.IsMarkNonOperationalAllowed}>
+                      <DropdownMenuItem
+                        disabled={!row.IsMarkNonOperationalAllowed}
+                      >
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <Link href="/Monitoring/Transactions">View Transactions</Link>
+                        <Link href={`/Monitoring/Transactions/${row.Id}`}>
+                          View Transactions
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -205,24 +311,20 @@ export default function ATMTable() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
         >
-          Previous
+          Prev
         </Button>
-        <div className="text-sm text-muted-foreground">
-          Page {currentPage} of {totalPages}
-        </div>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+          }
         >
           Next
         </Button>
       </div>
     </div>
-  )
+  );
 }
-

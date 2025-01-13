@@ -21,11 +21,11 @@ export default function DashboardPage() {
         </Suspense>
       </div>
 
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <Suspense fallback={<div>Loading ATM data...</div>}>
-          {/* <ATMHeatMap /> */}
+          <ATMHeatMap />
         </Suspense>
-      </div>
+      </div> */}
 
       {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>

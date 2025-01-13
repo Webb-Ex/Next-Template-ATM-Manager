@@ -42,6 +42,7 @@ let placeholder_data = [
     acquirer_channel: ["ATM", "POS", "Web", "Mobile"],
     member_transaction: [false, true],
     member_decliner: [false, true],
+    atm_id:[2910, 2930, 2950, 2970, 2971]
   }
 ];
 
@@ -50,6 +51,7 @@ async function insertTransactionData() {
   const { error } = await supabase.from("TransactionData").insert([
     {
       id: Math.floor(100 + Math.random() * 900).toString(),
+      atm_id: placeholder_data[0].atm_id[Math.floor(Math.random() * placeholder_data[0].atm_id.length)],
       created_at: new Date().toISOString(),
       pan: "1234567890123456",
       transaction_type: placeholder_data[0].transaction_type[Math.floor(Math.random() * placeholder_data[0].transaction_type.length)],
@@ -69,7 +71,7 @@ async function insertTransactionData() {
       amount_transaction: Math.floor(Math.random() * (1000000 - 100000) + 100000),
       currency_transaction: "PKR",
       member_transaction: placeholder_data[0].member_transaction[Math.floor(Math.random() * placeholder_data[0].member_transaction.length)],
-      member_decliner: placeholder_data[0].member_decliner[Math.floor(Math.random() * placeholder_data[0].member_decliner.length)],
+      member_decliner: placeholder_data[0].member_decliner[Math.floor(Math.random() * placeholder_data[0].member_decliner.length)],    
     },
   ]);
 
