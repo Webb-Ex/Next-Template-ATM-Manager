@@ -14,15 +14,20 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
+  AlertTriangle,
   ArrowUpDown,
   Check,
+  CheckCircle,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  CreditCard,
+  DollarSign,
   MoreHorizontal,
   X,
+  XCircle,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState, useRef } from "react";
@@ -241,6 +246,52 @@ export const columns: ColumnDef<any>[] = [
   },
   {
     accessorKey: "response",
+    cell: ({ row }) => {
+      const response = row.getValue("response");
+
+      return (
+        <div className="flex items-center gap-2 p-2 rounded-md">
+          {response === "200" && (
+            <div className="flex items-center gap-2 bg-green-100 p-1 rounded-md">
+              <CheckCircle className="text-green-500 w-5 h-5" />
+              <span className="text-sm font-medium text-green-800">
+                Approved
+              </span>
+            </div>
+          )}
+          {response === "120" && (
+            <div className="flex items-center gap-2 bg-red-100 p-1 rounded-md">
+              <XCircle className="text-red-500 w-5 h-5" />
+              <span className="text-sm font-medium text-red-800">Declined</span>
+            </div>
+          )}
+          {response === "121" && (
+            <div className="flex items-center gap-2 bg-yellow-100 p-1 rounded-md">
+              <DollarSign className="text-yellow-500 w-5 h-5" />
+              <span className="text-sm font-medium text-yellow-800">
+                Insufficient Funds
+              </span>
+            </div>
+          )}
+          {response === "122" && (
+            <div className="flex items-center gap-2 bg-purple-100 p-1 rounded-md">
+              <CreditCard className="text-purple-500 w-5 h-5" />
+              <span className="text-sm font-medium text-purple-800">
+                Invalid Card
+              </span>
+            </div>
+          )}
+          {response === "00" && (
+            <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
+              <AlertTriangle className="text-gray-500 w-5 h-5" />
+              <span className="text-sm font-medium text-gray-800">
+                Invalid Amount
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    },
     header: ({ column }) => {
       return (
         <Button
@@ -253,6 +304,7 @@ export const columns: ColumnDef<any>[] = [
       );
     },
   },
+
   {
     accessorKey: "settlement_date",
     cell: ({ row }) =>
@@ -315,58 +367,58 @@ export const columns: ColumnDef<any>[] = [
       );
     },
   },
-  {
-    accessorKey: "member_transaction",
-    cell: ({ row }) => {
-      const isTrue = row.getValue("member_transaction");
-      return (
-        <div className="flex items-center justify-center">
-          {isTrue ? (
-            <Check className="text-green-500 h-5 w-5" />
-          ) : (
-            <X className="text-red-500 h-5 w-5" />
-          )}
-        </div>
-      );
-    },
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Member Transaction
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-  },
-  {
-    accessorKey: "member_decliner",
-    cell: ({ row }) => {
-      const isTrue = row.getValue("member_decliner");
-      return (
-        <div className="flex items-center justify-center">
-          {isTrue ? (
-            <Check className="text-green-500 h-5 w-5" />
-          ) : (
-            <X className="text-red-500 h-5 w-5" />
-          )}
-        </div>
-      );
-    },
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Member Decliner
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-  },
+  // {
+  //   accessorKey: "member_transaction",
+  //   cell: ({ row }) => {
+  //     const isTrue = row.getValue("member_transaction");
+  //     return (
+  //       <div className="flex items-center justify-center">
+  //         {isTrue ? (
+  //           <Check className="text-green-500 h-5 w-5" />
+  //         ) : (
+  //           <X className="text-red-500 h-5 w-5" />
+  //         )}
+  //       </div>
+  //     );
+  //   },
+  //   header: ({ column }) => {
+  //     return (
+  //       <Button
+  //         variant="ghost"
+  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //       >
+  //         Member Transaction
+  //         <ArrowUpDown className="ml-2 h-4 w-4" />
+  //       </Button>
+  //     );
+  //   },
+  // },
+  // {
+  //   accessorKey: "member_decliner",
+  //   cell: ({ row }) => {
+  //     const isTrue = row.getValue("member_decliner");
+  //     return (
+  //       <div className="flex items-center justify-center">
+  //         {isTrue ? (
+  //           <Check className="text-green-500 h-5 w-5" />
+  //         ) : (
+  //           <X className="text-red-500 h-5 w-5" />
+  //         )}
+  //       </div>
+  //     );
+  //   },
+  //   header: ({ column }) => {
+  //     return (
+  //       <Button
+  //         variant="ghost"
+  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //       >
+  //         Member Decliner
+  //         <ArrowUpDown className="ml-2 h-4 w-4" />
+  //       </Button>
+  //     );
+  //   },
+  // },
   {
     id: "actions",
     header: "Actions",
@@ -405,7 +457,7 @@ type AreaChartDataItem = {
 };
 
 export function TransactionTable() {
-  const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [filteredData, setFilteredData] = React.useState<any[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -417,7 +469,9 @@ export function TransactionTable() {
     { count: "Transactions Count", member: 0, network: 0 },
   ]);
 
-  const [horizontalChartData, setHorizontalChartData] = useState<HorizontalChartDataItem[]>([
+  const [horizontalChartData, setHorizontalChartData] = useState<
+    HorizontalChartDataItem[]
+  >([
     { transaction: "member", decliners: 0, fill: "var(--color-member)" },
     { transaction: "network", decliners: 0, fill: "var(--color-network)" },
   ]);
@@ -428,16 +482,77 @@ export function TransactionTable() {
 
   const socketRef = useRef<Socket | null>(null);
 
+  const updateTransactionData = (data: unknown) => {
+    if (Array.isArray(data) && data.length > 0) {
+      const newEntry = data[data.length - 1];
+      const entryTime = new Date(newEntry.created_at);
+      const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
+
+      setFilteredData((prevData) => [...prevData, newEntry]);
+
+      // Update charts as before
+      setChartData((prevChartData) => {
+        return prevChartData.map((item) => ({
+          ...item,
+          member: item.member + (newEntry.member_transaction ? 1 : 0),
+          network: item.network + (newEntry.member_transaction ? 0 : 1),
+        }));
+      });
+
+      setHorizontalChartData((prevChartData) => {
+        return prevChartData.map((item) => {
+          if (item.transaction === "member" && newEntry.member_decliner) {
+            return { ...item, decliners: item.decliners + 1 };
+          }
+          if (item.transaction === "network" && !newEntry.member_decliner) {
+            return { ...item, decliners: item.decliners + 1 };
+          }
+          return item; // No changes for other items
+        });
+      });
+
+      setAreaChartData((prevChartData) => {
+        const existingTimeSlot = prevChartData.find(
+          (item) => item.time === timeKey
+        );
+
+        if (existingTimeSlot) {
+          // If time slot already exists, update transactions and amount
+          return prevChartData.map((item) =>
+            item.time === timeKey
+              ? {
+                  ...item,
+                  transactions: item.transactions + 1,
+                  amount: item.amount + newEntry.amount_transaction,
+                }
+              : item
+          );
+        } else {
+          // If time slot doesn't exist, add a new entry
+          return [
+            ...prevChartData,
+            {
+              time: timeKey,
+              transactions: 1,
+              amount: newEntry.amount_transaction,
+            },
+          ];
+        }
+      });
+    }
+  };
+
   const fetchData = async () => {
     try {
       const { data, error } = await supabase
         .from("TransactionData")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: true });
 
       if (error) {
         throw new Error(error.message);
       }
-      setFilteredData(data || []);
+      updateTransactionData(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -445,68 +560,10 @@ export function TransactionTable() {
 
   useEffect(() => {
     fetchData();
-
     socketRef.current = io("http://localhost:3000");
-
     const handleUpdateTable = (data: unknown) => {
       console.log("Real-time update:", data);
-
-      if (Array.isArray(data) && data.length > 0) {
-        const newEntry = data[data.length - 1];
-        const entryTime = new Date(newEntry.created_at);
-        const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
-
-
-        setFilteredData((prevData) => [newEntry, ...prevData]);
-        setChartData((prevChartData) => {
-          return prevChartData.map((item) => ({
-            ...item,
-            member: item.member + (newEntry.member_transaction ? 1 : 0),
-            network: item.network + (newEntry.member_transaction ? 0 : 1),
-          }));
-        });
-        setHorizontalChartData((prevChartData) => {
-          return prevChartData.map((item) => {
-            if (item.transaction === "member" && newEntry.member_decliner) {
-              return { ...item, decliners: item.decliners + 1 };
-            }
-            if (item.transaction === "network" && !newEntry.member_decliner) {
-              return { ...item, decliners: item.decliners + 1 };
-            }
-            return item; // No changes for other items
-          });
-        });
-
-        setAreaChartData((prevChartData) => {
-          const existingTimeSlot = prevChartData.find(
-            (item) => item.time === timeKey
-          );
-
-          if (existingTimeSlot) {
-            // If time slot already exists, update transactions and amount
-            return prevChartData.map((item) =>
-              item.time === timeKey
-                ? {
-                  ...item,
-                  transactions: item.transactions + 1,
-                  amount: item.amount + newEntry.amount_transaction,
-                }
-                : item
-            );
-          } else {
-            // If time slot doesn't exist, add a new entry
-            return [
-              ...prevChartData,
-              {
-                time: timeKey,
-                transactions: 1,
-                amount: newEntry.amount_transaction,
-              },
-            ];
-          }
-        });
-
-      }
+      updateTransactionData(data);
     };
 
     socketRef.current.on("updateTable", handleUpdateTable);
@@ -519,6 +576,7 @@ export function TransactionTable() {
     };
   }, []);
 
+  console.log("socket ref value", socketRef.current);
 
   const table = useReactTable({
     data: filteredData,
@@ -539,7 +597,7 @@ export function TransactionTable() {
     },
   });
 
-  console.log("filteredData", filteredData)
+  console.log("filteredData", filteredData);
 
   return (
     <div className="w-full">
@@ -611,9 +669,9 @@ export function TransactionTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -623,23 +681,20 @@ export function TransactionTable() {
           <TableBody className="bg-gray-50">
             <AnimatePresence>
               {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row, index) => (
+                [...table.getRowModel().rows].reverse().map((row) => (
                   <motion.tr
                     key={row.id}
-                    initial={{ opacity: 0, y: 20 }} // Initial state
-                    animate={{ opacity: 1, y: 0 }} // Final state
-                    exit={{ opacity: 0, y: -20 }} // Exit state (for removal)
-                    transition={{
-                      duration: 0.3,
-                      delay: index === 0 ? 0 : 0.1, // Delay animation for first element (newly added)
-                    }}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.8 }}
                     data-state={row.getIsSelected() && "selected"}
                     className="border-b border-gray-300 hover:bg-blue-50"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="py-3 px-4 text-sm text-center text-gray-700"
+                        className="py-3 px-4 text-sm text-gray-700"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
