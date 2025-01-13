@@ -192,4 +192,15 @@ export const navMainItems = [
       },
     ],
   },
+  {
+    title: "Transaction Monitoring",
+    url: "#",
+    icon: MonitorCog,
+    items: [
+      {
+        title: "Transactions",
+        url: "/Monitoring/Transactions",
+      },
+    ]
+  },
 ]
