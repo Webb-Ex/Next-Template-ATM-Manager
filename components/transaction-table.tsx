@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useParams } from "next/navigation";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -98,6 +99,20 @@ export const columns: ColumnDef<any>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           ID
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "atm_id",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          ATM ID
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -457,6 +472,10 @@ type AreaChartDataItem = {
 };
 
 export function TransactionTable() {
+  const { id } = useParams();
+
+  console.log("ididid", id);
+
   const [filteredData, setFilteredData] = React.useState<any[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -487,8 +506,16 @@ export function TransactionTable() {
       const newEntry = data[data.length - 1];
       const entryTime = new Date(newEntry.created_at);
       const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
-
-      setFilteredData((prevData) => [...prevData, newEntry]);
+      console.log("updateTransactionData id", id, typeof id, typeof Number(id));
+      setFilteredData((prevData) => {
+        if (id === undefined) {
+          return [...prevData, newEntry];
+        } else {
+          return prevData.map((entry) =>
+            entry.atm_id === Number(id) ? { ...entry, ...newEntry } : entry
+          );
+        }
+      });
 
       // Update charts as before
       setChartData((prevChartData) => {
@@ -544,10 +571,16 @@ export function TransactionTable() {
 
   const fetchData = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("TransactionData")
         .select("*")
         .order("created_at", { ascending: true });
+
+      if (id !== undefined) {
+        query = query.eq("atm_id", Number(id));
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         throw new Error(error.message);

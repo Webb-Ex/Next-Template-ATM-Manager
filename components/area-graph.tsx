@@ -169,9 +169,11 @@ export function AreaGraph({ areaChartData }: AreaGraphData) {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
+                    const time = new Date(`1970-01-01T${value}Z`); // assuming the time is in 24-hour format (HH:mm:ss)
+                    return time.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
                     });
                   }}
                   indicator="dot"
