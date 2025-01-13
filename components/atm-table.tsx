@@ -3,11 +3,22 @@
 import * as React from "react";
 import {
   MoreHorizontal,
-  Plus,
-  Trash,
-  RefreshCw,
+  FilePenLine,
+  Zap,
+  OctagonMinus,
+  SquareMenu,
+  FileText,
+  ListCheck,
+  BadgeCheck,
+  OctagonX,
+  Trash2,
+  TrashIcon,
+  Download,
   Power,
-  PowerOff,
+  CalendarClock,
+  FileChartColumn,
+  CirclePlus,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +26,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -31,8 +47,9 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
 
@@ -42,12 +59,13 @@ import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { ATMTableSkeleton } from "./skeletons/atm-table-skeleton";
 import { supabase } from "@/lib/supabaseClient";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function ATMTable() {
   const [atmData, setAtmData] = React.useState<any[]>([]);
   const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
   const itemsPerPage = 10;
   const socketRef = React.useRef<any>(null);
 
@@ -120,7 +138,7 @@ export default function ATMTable() {
       case "down":
         return "destructive";
       case "up":
-        return "default";
+        return "up";
       default:
         return "secondary";
     }
@@ -129,9 +147,11 @@ export default function ATMTable() {
   const getStateVariant = (state: string) => {
     switch (state.toLowerCase()) {
       case "pending":
-        return "outline";
+        return "pending";
       case "active":
         return "default";
+      case "in service":
+        return "inservice";
       default:
         return "secondary";
     }
@@ -150,48 +170,118 @@ export default function ATMTable() {
         <div className="flex gap-2">
           <Menubar>
             <MenubarMenu>
-              <MenubarTrigger>Change Log Type</MenubarTrigger>
+              <MenubarTrigger>
+                <Zap className="w-4 text-end me-2 " />
+                Actions
+              </MenubarTrigger>
               <MenubarContent>
-                <MenubarItem>
-                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
-                </MenubarItem>
+                <MenubarSub>
+                  <MenubarSubTrigger>
+                    <FilePenLine className="w-4 text-end me-2" />
+                    Change Log Type
+                  </MenubarSubTrigger>
+                  <MenubarSubContent>
+                    <MenubarItem>
+                      <OctagonMinus className="w-4 text-end me-2 text-red-600" />{" "}
+                      Disable Logs
+                    </MenubarItem>
+                    <MenubarItem>
+                      <SquareMenu className="w-4 text-end me-2 text-green-600" />{" "}
+                      Log Type Information
+                    </MenubarItem>
+                    <MenubarItem>
+                      <FileText className="w-4 text-end me-2 text-blue-600" />{" "}
+                      Log Type Verbose
+                    </MenubarItem>
+                  </MenubarSubContent>
+                </MenubarSub>
 
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>Change Status</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem>
-                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
-                </MenubarItem>
+                <MenubarSub>
+                  <MenubarSubTrigger>
+                    <ListCheck className="w-4 text-end me-2" />
+                    Change Status
+                  </MenubarSubTrigger>
+                  <MenubarSubContent>
+                    <MenubarItem>
+                      <BadgeCheck className="w-4 text-end me-2 text-green-600" />{" "}
+                      Mark Operational
+                    </MenubarItem>
+                    <MenubarItem>
+                      <OctagonX className="w-4 text-end me-2 text-red-600" />{" "}
+                      Mark Non-Operational
+                    </MenubarItem>
+                    <MenubarItem>
+                      <TrashIcon className="w-4 text-end me-2 text-green-600" />{" "}
+                      Undo Soft Delete
+                    </MenubarItem>
+                    <MenubarItem>
+                      <Trash2 className="w-4 text-end me-2 text-red-600" /> Soft
+                      Delete
+                    </MenubarItem>
+                  </MenubarSubContent>
+                </MenubarSub>
 
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>Load Settings</MenubarTrigger>
-              <MenubarContent>
                 <MenubarItem>
-                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                  <Download className="w-4 text-end me-2 " /> Load Settings
                 </MenubarItem>
-
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>Change State</MenubarTrigger>
-              <MenubarContent>
                 <MenubarItem>
-                  New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                  <Power className="w-4 text-end me-2 " /> Change State
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
           </Menubar>
 
-          <Button variant="outline" size="icon">
-            <Plus className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon">
-            <Trash className="h-4 w-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="outline" size="icon">
+                  <CalendarClock className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Schedule Downtime</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="outline" size="icon">
+                  <FileChartColumn className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View Transactions</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="outline" size="icon">
+                  <CirclePlus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Add</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="outline" size="icon">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Search</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -214,96 +304,104 @@ export default function ATMTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.map((row) => (
-              <TableRow key={row.Id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedRows.includes(row.Id)}
-                    onCheckedChange={() => toggleRowSelection(row.Id)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium">ID: {row.DisplayId}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Terminal: {row.TerminalId}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    IP: {row.IpAddress}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div>{row.Location}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {row.City}, {row.Region}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Branch: {row.BranchCode} ({row.IsOffsite})
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div>Group: {row.ConfigurationGroup}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Process: {row.ProcessGroup}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    TLS: {row.TLSEnabled}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Make: {row.Make}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={getStatusVariant(row.CommsStatus)}
-                    className="mb-1 me-1"
-                  >
-                    {row.CommsStatus}
-                  </Badge>
-                  <Badge variant={getStateVariant(row.State)}>
-                    {row.State}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="space-y-1">
-                    <div className="text-sm font-medium">Config</div>
-                    <Progress
-                      value={parseInt(row.ConfigLoadStatus)}
-                      className="w-[60px]"
+            <AnimatePresence>
+              {paginatedData.map((row) => (
+                <motion.tr
+                  key={row.Id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedRows.includes(row.Id)}
+                      onCheckedChange={() => toggleRowSelection(row.Id)}
                     />
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">ID: {row.DisplayId}</div>
                     <div className="text-sm text-muted-foreground">
-                      {row.ConfigLoadStatus}%
+                      Terminal: {row.TerminalId}
                     </div>
-                  </div>
-                  <div className="text-sm mt-2">Key: {row.KeyLoadStatus}</div>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem disabled={!row.IsRestartATMAllowed}>
-                        View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={!row.IsMarkNonOperationalAllowed}
-                      >
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Link href={`/Monitoring/Transactions/${row.Id}`}>
-                          View Transactions
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+                    <div className="text-sm text-muted-foreground">
+                      IP: {row.IpAddress}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>{row.Location}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {row.City}, {row.Region}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Branch: {row.BranchCode} ({row.IsOffsite})
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>Group: {row.ConfigurationGroup}</div>
+                    <div className="text-sm text-muted-foreground">
+                      Process: {row.ProcessGroup}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      TLS: {row.TLSEnabled}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Make: {row.Make}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={getStatusVariant(row.CommsStatus)}
+                      className="mb-1 me-1"
+                    >
+                      {row.CommsStatus}
+                    </Badge>
+                    <Badge variant={getStateVariant(row.State)}>
+                      {row.State}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="text-sm font-medium">Config</div>
+                      <Progress
+                        value={parseInt(row.ConfigLoadStatus)}
+                        className="w-[60px]"
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        {row.ConfigLoadStatus}%
+                      </div>
+                    </div>
+                    <div className="text-sm mt-2">Key: {row.KeyLoadStatus}</div>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem disabled={!row.IsRestartATMAllowed}>
+                          View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={!row.IsMarkNonOperationalAllowed}
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link href={`/Monitoring/Transactions/${row.Id}`}>
+                            View Transactions
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
           </TableBody>
         </Table>
       </div>
