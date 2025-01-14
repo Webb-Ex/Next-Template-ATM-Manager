@@ -26,6 +26,7 @@ import {
   ChevronsRight,
   CreditCard,
   DollarSign,
+  Maximize,
   Minus,
   MoreHorizontal,
   Plus,
@@ -44,7 +45,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -77,6 +78,7 @@ import { BarGraph } from "./bar-graph";
 import { HorizontalGraph } from "./horizontal-graph";
 import { AreaGraph } from "./area-graph";
 import { StackedBarGraph } from "./stacked-bargraph";
+import { CardContent, CardHeader, CardTitle } from "./ui/card";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -542,7 +544,10 @@ export function TransactionTable() {
               network: item.network + (newEntry.member_transaction ? 0 : 1),
             }));
           }
-          console.log("No update to chart data as atm_id does not match id:", id);
+          console.log(
+            "No update to chart data as atm_id does not match id:",
+            id
+          );
           return prevChartData;
         }
         console.log("id is undefined, updating all chart data");
@@ -552,7 +557,6 @@ export function TransactionTable() {
           network: item.network + (newEntry.member_transaction ? 0 : 1),
         }));
       });
-
 
       setHorizontalChartData((prevChartData) => {
         if (id !== undefined) {
@@ -568,7 +572,10 @@ export function TransactionTable() {
               return item;
             });
           }
-          console.log("No update to horizontal chart data as atm_id does not match id:", id);
+          console.log(
+            "No update to horizontal chart data as atm_id does not match id:",
+            id
+          );
           return prevChartData;
         }
 
@@ -584,7 +591,6 @@ export function TransactionTable() {
         });
       });
 
-
       setAreaChartData((prevChartData) => {
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
@@ -598,10 +604,10 @@ export function TransactionTable() {
               return prevChartData.map((item) =>
                 item.time === timeKey
                   ? {
-                    ...item,
-                    transactions: item.transactions + 1,
-                    amount: item.amount + newEntry.amount_transaction,
-                  }
+                      ...item,
+                      transactions: item.transactions + 1,
+                      amount: item.amount + newEntry.amount_transaction,
+                    }
                   : item
               );
             } else {
@@ -615,7 +621,10 @@ export function TransactionTable() {
               ];
             }
           }
-          console.log("No update to area chart data as atm_id does not match id:", id);
+          console.log(
+            "No update to area chart data as atm_id does not match id:",
+            id
+          );
           return prevChartData;
         }
 
@@ -628,10 +637,10 @@ export function TransactionTable() {
           return prevChartData.map((item) =>
             item.time === timeKey
               ? {
-                ...item,
-                transactions: item.transactions + 1,
-                amount: item.amount + newEntry.amount_transaction,
-              }
+                  ...item,
+                  transactions: item.transactions + 1,
+                  amount: item.amount + newEntry.amount_transaction,
+                }
               : item
           );
         } else {
@@ -645,7 +654,6 @@ export function TransactionTable() {
           ];
         }
       });
-
     }
   };
 
@@ -665,7 +673,8 @@ export function TransactionTable() {
       if (error) {
         throw new Error(error.message);
       }
-      updateTransactionData(data);
+      // updateTransactionData(data);
+      setFilteredData(data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -743,6 +752,7 @@ export function TransactionTable() {
           }
           className="max-w-sm"
         />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -765,6 +775,196 @@ export function TransactionTable() {
               ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <Drawer>
+          <DrawerTrigger className="mt-3" asChild>
+            <Button
+              className="w-[36px] h-[36px] mt-0 ml-[10px]"
+              variant="outline"
+            >
+              <Maximize />
+            </Button>
+          </DrawerTrigger>
+
+          <DrawerContent className="h-full">
+            <CardHeader className="relative">
+              <div className="flex items-center py-4">
+                <CardTitle>Transaction Lists</CardTitle>
+                <Input
+                  placeholder="Search..."
+                  value={
+                    (table
+                      .getColumn("transaction_type")
+                      ?.getFilterValue() as string) ?? ""
+                  }
+                  onChange={(event) =>
+                    table
+                      .getColumn("transaction_type")
+                      ?.setFilterValue(event.target.value)
+                  }
+                  className="ml-10 max-w-sm"
+                />
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="ml-auto">
+                      Columns <ChevronDown />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {table
+                      .getAllColumns()
+                      .filter((column) => column.getCanHide())
+                      .map((column) => (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                          }
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border h-[70vh] overflow-auto">
+                <Table className="min-w-full table-auto bg-gray-50 border-collapse">
+                  <TableHeader className="bg-gray-800">
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow
+                        key={headerGroup.id}
+                        className="border-b border-gray-300"
+                      >
+                        {headerGroup.headers.map((header) => (
+                          <TableHead
+                            key={header.id}
+                            className="py-3 px-4 text-left text-sm font-semibold text-white"
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+
+                  <TableBody className="bg-gray-50">
+                    <AnimatePresence>
+                      {table.getRowModel().rows?.length ? (
+                        [...table.getRowModel().rows].reverse().map((row) => (
+                          <motion.tr
+                            key={row.id}
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            transition={{ duration: 0.8 }}
+                            data-state={row.getIsSelected() && "selected"}
+                            className="border-b border-gray-300 hover:bg-blue-50"
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell
+                                key={cell.id}
+                                className="py-3 px-4 text-sm text-gray-700"
+                              >
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </motion.tr>
+                        ))
+                      ) : (
+                        <TableRow className="text-center">
+                          <TableCell
+                            colSpan={columns.length}
+                            className="h-24 py-3 text-gray-500"
+                          >
+                            No results.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </AnimatePresence>
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="flex items-center space-x-6 lg:space-x-8 mt-4">
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm font-medium">Rows per page</p>
+                  <Select
+                    value={`${table.getState().pagination.pageSize}`}
+                    onValueChange={(value) => {
+                      table.setPageSize(Number(value));
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[70px]">
+                      <SelectValue
+                        placeholder={table.getState().pagination.pageSize}
+                      />
+                    </SelectTrigger>
+                    <SelectContent side="top">
+                      {[10, 20, 30, 40, 50].map((pageSize) => (
+                        <SelectItem key={pageSize} value={`${pageSize}`}>
+                          {pageSize}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                  Page {table.getState().pagination.pageIndex + 1} of{" "}
+                  {table.getPageCount()}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    className="hidden h-8 w-8 p-0 lg:flex"
+                    onClick={() => table.setPageIndex(0)}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    <span className="sr-only">Go to first page</span>
+                    <ChevronsLeft />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-8 w-8 p-0"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    <span className="sr-only">Go to previous page</span>
+                    <ChevronLeft />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-8 w-8 p-0"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    <span className="sr-only">Go to next page</span>
+                    <ChevronRight />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="hidden h-8 w-8 p-0 lg:flex"
+                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    <span className="sr-only">Go to last page</span>
+                    <ChevronsRight />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </DrawerContent>
+        </Drawer>
       </div>
       <div className="rounded-md border">
         <Table className="min-w-full table-auto bg-gray-50 border-collapse">
@@ -782,9 +982,9 @@ export function TransactionTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -895,133 +1095,6 @@ export function TransactionTable() {
           </Button>
         </div>
       </div>
-      <Drawer>
-        <DrawerTrigger className="mt-3" asChild>
-          <Button variant="outline">See Transaction</Button>
-        </DrawerTrigger>
-        <DrawerContent>
-          <div className="mx-auto w-full max-w-sm">
-            <DrawerHeader>
-              <DrawerTitle className="text-center">Transaction Details</DrawerTitle>
-            </DrawerHeader>
-            <div className="p-6 bg-white rounded-lg shadow-md space-y-6">
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Transaction ID:</span>
-                  <span className="text-gray-800">261</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">ATM ID:</span>
-                  <span className="text-gray-800">2971</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Created At:</span>
-                  <span className="text-gray-800">1/13/2025, 11:57:46 PM</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Transaction Type:</span>
-                  <span className="text-gray-800">Reversal</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">PAN:</span>
-                  <span className="text-gray-800">1234 5678 9012 3456</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">STAN:</span>
-                  <span className="text-gray-800">82379</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Acquirer Channel:</span>
-                  <span className="text-gray-800">POS</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Acquirer Payment Entity:</span>
-                  <span className="text-gray-800">American Express</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Issuer Channel:</span>
-                  <span className="text-gray-800">iHost</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Product:</span>
-                  <span className="text-gray-800">Others</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Message Type:</span>
-                  <span className="text-gray-800">0800</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">POS Entry Mode:</span>
-                  <span className="text-gray-800">Others</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-600">Response:</span>
-                  <div className="flex items-center gap-2 bg-purple-100 px-3 py-1 rounded-md">
-                    <CreditCard className="text-purple-500 w-5 h-5" />
-                    <span className="text-sm font-medium text-purple-800">
-                      Invalid Card
-                    </span>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Settlement Date:</span>
-                  <span className="text-gray-800">1/14/2025</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Payment Company:</span>
-                  <span className="text-gray-800">CompanyC</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Amount Transaction:</span>
-                  <span className="text-gray-800">634,407 PKR</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Member Transaction:</span>
-                  <Check className="text-green-500 h-5 w-5" />
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-600">Member Decliner:</span>
-                  <X className="text-red-500 h-5 w-5" />
-                </div>
-              </div>
-            </div>
-
-            {/* <div className="p-4 pb-0">
-              <div className="flex items-center justify-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8 shrink-0 rounded-full"
-                >
-                  <Minus />
-                  <span className="sr-only">Decrease</span>
-                </Button>
-                <div className="flex-1 text-center">
-                  <div className="text-7xl font-bold tracking-tighter">
-                    Test
-                  </div>
-                  <div className="text-[0.70rem] uppercase text-muted-foreground">
-                    Calories/day
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8 shrink-0 rounded-full"
-                >
-                  <Plus />
-                  <span className="sr-only">Increase</span>
-                </Button>
-              </div>
-            </div> */}
-            <DrawerFooter>
-              <DrawerClose asChild>
-                <Button variant="outline">Close</Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </div>
-        </DrawerContent>
-      </Drawer>
     </div>
   );
 }
