@@ -150,8 +150,50 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "response",
     cell: ({ row }) => {
       const response: string | null = row.getValue("response") as string | null;
+
       return (
-        <div className="flex items-center gap-2 p-2 rounded-md">{response}</div>
+
+        response
+        // <div className="flex items-center gap-2 p-2 rounded-md">
+        //   {response === "200" && (
+        //     <div className="flex items-center gap-2 bg-green-100 p-1 rounded-md">
+        //       <CheckCircle className="text-green-500 w-5 h-5" />
+        //       <span className="text-sm font-medium text-green-800">
+        //         Approved
+        //       </span>
+        //     </div>
+        //   )}
+        //   {response === "120" && (
+        //     <div className="flex items-center gap-2 bg-red-100 p-1 rounded-md">
+        //       <XCircle className="text-red-500 w-5 h-5" />
+        //       <span className="text-sm font-medium text-red-800">Declined</span>
+        //     </div>
+        //   )}
+        //   {response === "121" && (
+        //     <div className="flex items-center gap-2 bg-yellow-100 p-1 rounded-md">
+        //       <DollarSign className="text-yellow-500 w-5 h-5" />
+        //       <span className="text-sm font-medium text-yellow-800">
+        //         Insufficient Funds
+        //       </span>
+        //     </div>
+        //   )}
+        //   {response === "122" && (
+        //     <div className="flex items-center gap-2 bg-purple-100 p-1 rounded-md">
+        //       <CreditCard className="text-purple-500 w-5 h-5" />
+        //       <span className="text-sm font-medium text-purple-800">
+        //         Invalid Card
+        //       </span>
+        //     </div>
+        //   )}
+        //   {response === "00" && (
+        //     <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
+        //       <AlertTriangle className="text-gray-500 w-5 h-5" />
+        //       <span className="text-sm font-medium text-gray-800">
+        //         Invalid Amount
+        //       </span>
+        //     </div>
+        //   )}
+        // </div>
       );
     },
     header: ({ column }) => {
@@ -432,56 +474,12 @@ export function TransactionTable() {
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
             console.log("Pushing entry with matching atm_id:", newEntry);
-
-            // Start updating the 'response' property
-            newEntry.response = "Received";
-            setFilteredData((prev) => [...prev, newEntry]);
-
-            setTimeout(() => {
-              newEntry.response = "In Progress";
-              setFilteredData((prev) => [
-                ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
-                newEntry,
-              ]);
-            }, 3000);
-
-            setTimeout(() => {
-              const responseStatus =
-                Math.random() > 0.5 ? "Approved" : "Rejected"; // Randomly choose "Approved" or "Rejected"
-              newEntry.response = responseStatus;
-              setFilteredData((prev) => [
-                ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
-                newEntry,
-              ]);
-            }, 6000);
-
             return [...prevData, newEntry];
           }
           console.log("No matching atm_id for id:", id);
           return prevData;
         }
         console.log("id is undefined, adding new entry:", newEntry);
-
-        newEntry.response = "Received";
-        setFilteredData((prev) => [...prev, newEntry]);
-
-        setTimeout(() => {
-          newEntry.response = "In Progress";
-          setFilteredData((prev) => [
-            ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
-            newEntry,
-          ]);
-        }, 3000);
-
-        setTimeout(() => {
-          const responseStatus = Math.random() > 0.5 ? "Approved" : "Rejected";
-          newEntry.response = responseStatus;
-          setFilteredData((prev) => [
-            ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
-            newEntry,
-          ]);
-        }, 6000);
-
         return [...prevData, newEntry];
       });
 
@@ -555,10 +553,10 @@ export function TransactionTable() {
               return prevChartData.map((item) =>
                 item.time === timeKey
                   ? {
-                      ...item,
-                      transactions: item.transactions + 1,
-                      amount: item.amount + newEntry.amount_transaction,
-                    }
+                    ...item,
+                    transactions: item.transactions + 1,
+                    amount: item.amount + newEntry.amount_transaction,
+                  }
                   : item
               );
             } else {
@@ -588,10 +586,10 @@ export function TransactionTable() {
           return prevChartData.map((item) =>
             item.time === timeKey
               ? {
-                  ...item,
-                  transactions: item.transactions + 1,
-                  amount: item.amount + newEntry.amount_transaction,
-                }
+                ...item,
+                transactions: item.transactions + 1,
+                amount: item.amount + newEntry.amount_transaction,
+              }
               : item
           );
         } else {
@@ -648,6 +646,49 @@ export function TransactionTable() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (filteredData.length > 0) {
+      console.log("Step 1");
+      const lastIndex = filteredData.length - 1;
+      console.log("lastIndexlastIndex", lastIndex)
+      const updateState = async () => {
+        if (filteredData[lastIndex].response === "00") {
+          console.log("Step 2");
+
+          // await new Promise((resolve) => setTimeout(resolve, 3000));
+          console.log("Step 3");
+          setFilteredData((prev) => {
+            const updatedData = prev.map((item, index) =>
+              index === lastIndex ? { ...item, response: "In Progress" } : item
+            );
+            return updatedData;
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          console.log("Step 4");
+          setFilteredData((prev) => {
+            const updatedData = prev.map((item, index) =>
+              index === lastIndex ? { ...item, response: "Received" } : item
+            );
+            return updatedData;
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          console.log("Step 5");
+          setFilteredData((prev) => {
+            const updatedData = prev.map((item, index) =>
+              index === lastIndex ? { ...item, response: "Approved" } : item
+            );
+            return updatedData;
+          });
+        }
+      };
+
+      updateState();
+    }
+  }, [filteredData.length]);
+
 
   console.log("socket ref value", socketRef.current);
 
@@ -798,9 +839,9 @@ export function TransactionTable() {
                             {header.isPlaceholder
                               ? null
                               : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                           </TableHead>
                         ))}
                       </TableRow>
@@ -933,9 +974,9 @@ export function TransactionTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
