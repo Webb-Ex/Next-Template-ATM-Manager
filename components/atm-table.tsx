@@ -60,14 +60,27 @@ import Link from "next/link";
 import { ATMTableSkeleton } from "./skeletons/atm-table-skeleton";
 import { supabase } from "@/lib/supabaseClient";
 import { AnimatePresence, motion } from "framer-motion";
+import ATMDetailsDrawer from "./atm-detail-drawer";
 
 export default function ATMTable() {
   const [atmData, setAtmData] = React.useState<any[]>([]);
   const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [selectedId, setSelectedId] = React.useState<number | null>(null);
   const itemsPerPage = 10;
   const socketRef = React.useRef<any>(null);
+
+  const handleOpenDrawer = (id: number) => {
+    setSelectedId(id);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedId(null);
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -383,7 +396,9 @@ export default function ATMTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem disabled={!row.IsRestartATMAllowed}>
+                        <DropdownMenuItem
+                          onClick={() => handleOpenDrawer(row.Id)}
+                        >
                           View
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -423,6 +438,11 @@ export default function ATMTable() {
           Next
         </Button>
       </div>
+      <ATMDetailsDrawer
+        isOpen={isDrawerOpen}
+        onClose={handleCloseDrawer}
+        id={selectedId}
+      />
     </div>
   );
 }

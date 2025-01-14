@@ -13,7 +13,7 @@ interface CassetteData {
 const mockData: CassetteData[] = [
   {
     id: 1,
-    denomination: "1000 PKR",
+    denomination: "5000 PKR",
     notesReplenished: 1000,
     notesRecycled: 200,
     notesWithdrawn: 500,
@@ -22,7 +22,7 @@ const mockData: CassetteData[] = [
   },
   {
     id: 2,
-    denomination: "500 PKR",
+    denomination: "1000 PKR",
     notesReplenished: 2000,
     notesRecycled: 300,
     notesWithdrawn: 800,
@@ -31,7 +31,7 @@ const mockData: CassetteData[] = [
   },
   {
     id: 3,
-    denomination: "100 PKR",
+    denomination: "500 PKR",
     notesReplenished: 5000,
     notesRecycled: 1000,
     notesWithdrawn: 2000,
@@ -40,7 +40,7 @@ const mockData: CassetteData[] = [
   },
   {
     id: 4,
-    denomination: "50 PKR",
+    denomination: "100 PKR",
     notesReplenished: 10000,
     notesRecycled: 2000,
     notesWithdrawn: 5000,

@@ -1,3 +1,5 @@
+"use client"
+
 import { Suspense } from 'react'
 import ATMTable from "@/components/atm-table"
 import ISRChart from "@/components/isr-chart"
