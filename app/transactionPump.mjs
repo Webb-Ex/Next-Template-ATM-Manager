@@ -57,13 +57,13 @@ let placeholder_data = [
     product: ["ProductA", "ProductB", "ProductC", "ProductD", "Others"],
     message_type: ["0200", "0300", "0400", "0800"],
     pos_entry_mode: ["Magnetic", "Chip", "Contactless", "Others"],
-    response: [
-      "200", //Approved
-      "120", //Declined
-      "121", //Insufficient funds
-      "122", //Invalid card
-      "00", //Invalid amount
-    ],
+    // response: [
+    //   "200", //Approved
+    //   "120", //Declined
+    //   "121", //Insufficient funds
+    //   "122", //Invalid card
+    //   "00", //Invalid amount
+    // ],
     payment_company: ["CompanyA", "CompanyB", "CompanyC", "CompanyD"],
     acquirer_channel: ["ATM", "POS", "Web", "Mobile"],
     member_transaction: [false, true],
@@ -118,10 +118,7 @@ async function insertTransactionData() {
         placeholder_data[0].pos_entry_mode[
           Math.floor(Math.random() * placeholder_data[0].pos_entry_mode.length)
         ],
-      response:
-        placeholder_data[0].response[
-          Math.floor(Math.random() * placeholder_data[0].response.length)
-        ],
+      response: "00",
       settlement_date: new Date(
         new Date().setDate(new Date().getDate() + 1)
       ).toISOString(), // Tomorrow's date

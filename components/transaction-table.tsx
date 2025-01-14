@@ -149,49 +149,9 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "response",
     cell: ({ row }) => {
-      const response = row.getValue("response");
-
+      const response: string | null = row.getValue("response") as string | null;
       return (
-        <div className="flex items-center gap-2 p-2 rounded-md">
-          {response === "200" && (
-            <div className="flex items-center gap-2 bg-green-100 p-1 rounded-md">
-              <CheckCircle className="text-green-500 w-5 h-5" />
-              <span className="text-sm font-medium text-green-800">
-                Approved
-              </span>
-            </div>
-          )}
-          {response === "120" && (
-            <div className="flex items-center gap-2 bg-red-100 p-1 rounded-md">
-              <XCircle className="text-red-500 w-5 h-5" />
-              <span className="text-sm font-medium text-red-800">Declined</span>
-            </div>
-          )}
-          {response === "121" && (
-            <div className="flex items-center gap-2 bg-yellow-100 p-1 rounded-md">
-              <DollarSign className="text-yellow-500 w-5 h-5" />
-              <span className="text-sm font-medium text-yellow-800">
-                Insufficient Funds
-              </span>
-            </div>
-          )}
-          {response === "122" && (
-            <div className="flex items-center gap-2 bg-purple-100 p-1 rounded-md">
-              <CreditCard className="text-purple-500 w-5 h-5" />
-              <span className="text-sm font-medium text-purple-800">
-                Invalid Card
-              </span>
-            </div>
-          )}
-          {response === "00" && (
-            <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
-              <AlertTriangle className="text-gray-500 w-5 h-5" />
-              <span className="text-sm font-medium text-gray-800">
-                Invalid Amount
-              </span>
-            </div>
-          )}
-        </div>
+        <div className="flex items-center gap-2 p-2 rounded-md">{response}</div>
       );
     },
     header: ({ column }) => {
@@ -394,62 +354,10 @@ export const columns: ColumnDef<any>[] = [
       );
     },
   },
-  // {
-  //   accessorKey: "member_transaction",
-  //   cell: ({ row }) => {
-  //     const isTrue = row.getValue("member_transaction");
-  //     return (
-  //       <div className="flex items-center justify-center">
-  //         {isTrue ? (
-  //           <Check className="text-green-500 h-5 w-5" />
-  //         ) : (
-  //           <X className="text-red-500 h-5 w-5" />
-  //         )}
-  //       </div>
-  //     );
-  //   },
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Member Transaction
-  //         <ArrowUpDown className="ml-2 h-4 w-4" />
-  //       </Button>
-  //     );
-  //   },
-  // },
-  // {
-  //   accessorKey: "member_decliner",
-  //   cell: ({ row }) => {
-  //     const isTrue = row.getValue("member_decliner");
-  //     return (
-  //       <div className="flex items-center justify-center">
-  //         {isTrue ? (
-  //           <Check className="text-green-500 h-5 w-5" />
-  //         ) : (
-  //           <X className="text-red-500 h-5 w-5" />
-  //         )}
-  //       </div>
-  //     );
-  //   },
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Member Decliner
-  //         <ArrowUpDown className="ml-2 h-4 w-4" />
-  //       </Button>
-  //     );
-  //   },
-  // },
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
+    cell: () => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -524,12 +432,56 @@ export function TransactionTable() {
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
             console.log("Pushing entry with matching atm_id:", newEntry);
+
+            // Start updating the 'response' property
+            newEntry.response = "Received";
+            setFilteredData((prev) => [...prev, newEntry]);
+
+            setTimeout(() => {
+              newEntry.response = "In Progress";
+              setFilteredData((prev) => [
+                ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
+                newEntry,
+              ]);
+            }, 3000);
+
+            setTimeout(() => {
+              const responseStatus =
+                Math.random() > 0.5 ? "Approved" : "Rejected"; // Randomly choose "Approved" or "Rejected"
+              newEntry.response = responseStatus;
+              setFilteredData((prev) => [
+                ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
+                newEntry,
+              ]);
+            }, 6000);
+
             return [...prevData, newEntry];
           }
           console.log("No matching atm_id for id:", id);
           return prevData;
         }
         console.log("id is undefined, adding new entry:", newEntry);
+
+        newEntry.response = "Received";
+        setFilteredData((prev) => [...prev, newEntry]);
+
+        setTimeout(() => {
+          newEntry.response = "In Progress";
+          setFilteredData((prev) => [
+            ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
+            newEntry,
+          ]);
+        }, 3000);
+
+        setTimeout(() => {
+          const responseStatus = Math.random() > 0.5 ? "Approved" : "Rejected";
+          newEntry.response = responseStatus;
+          setFilteredData((prev) => [
+            ...prev.filter((entry) => entry.atm_id !== newEntry.atm_id),
+            newEntry,
+          ]);
+        }, 6000);
+
         return [...prevData, newEntry];
       });
 
