@@ -441,6 +441,7 @@ export default function ATMTable() {
       <ATMDetailsDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
+        //@ts-ignore
         id={selectedId}
       />
     </div>
