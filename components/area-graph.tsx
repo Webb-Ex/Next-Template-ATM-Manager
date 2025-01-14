@@ -25,6 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
+import { Button } from "./ui/button";
+import { Maximize } from "lucide-react";
 
 interface AreaGraphData {
   areaChartData: Array<{
@@ -92,10 +95,113 @@ export function AreaGraph({ areaChartData }: AreaGraphData) {
 
   return (
     <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+      <CardHeader className="relative flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Transactions Snapshot</CardTitle>
         </div>
+        <Drawer>
+          <DrawerTrigger className="mt-3" asChild>
+            <Button
+              className="absolute right-[25px] top-[10px] w-[10px] h-[30px]"
+              variant="outline"
+            >
+              <Maximize />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <CardHeader className="relative">
+              <CardTitle>Transactions Snapshot</CardTitle>
+            </CardHeader>
+            <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+              <ChartContainer
+                config={chartConfig}
+                className="aspect-auto w-full h-[75vh]"
+              >
+                <AreaChart data={areaChartData}>
+                  <defs>
+                    <linearGradient
+                      id="fillTransactions"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor="var(--color-transactions)"
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="var(--color-transactions)"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                    <linearGradient id="fillAmount" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="5%"
+                        stopColor="var(--color-amount)"
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="var(--color-amount)"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="time"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    minTickGap={32}
+                    tickFormatter={(value) => {
+                      const time = new Date(`1970-01-01T${value}Z`); // assuming the time is in 24-hour format (HH:mm:ss)
+                      return time.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      });
+                    }}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={
+                      <ChartTooltipContent
+                        labelFormatter={(value) => {
+                          const time = new Date(`1970-01-01T${value}Z`); // assuming the time is in 24-hour format (HH:mm:ss)
+                          return time.toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                          });
+                        }}
+                        indicator="dot"
+                      />
+                    }
+                  />
+                  <Area
+                    dataKey="amount"
+                    type="natural"
+                    fill="url(#fillAmount)"
+                    stroke="var(--color-amount)"
+                    stackId="a"
+                  />
+                  <Area
+                    dataKey="transactions"
+                    type="natural"
+                    fill="url(#fillTransactions)"
+                    stroke="var(--color-transactions)"
+                    stackId="a"
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                </AreaChart>
+              </ChartContainer>
+            </CardContent>
+          </DrawerContent>
+        </Drawer>
         {/* <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
             className="w-[160px] rounded-lg sm:ml-auto"
@@ -169,9 +275,11 @@ export function AreaGraph({ areaChartData }: AreaGraphData) {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
+                    const time = new Date(`1970-01-01T${value}Z`); // assuming the time is in 24-hour format (HH:mm:ss)
+                    return time.toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
                     });
                   }}
                   indicator="dot"

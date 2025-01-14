@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useParams } from "next/navigation";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -25,14 +26,26 @@ import {
   ChevronsRight,
   CreditCard,
   DollarSign,
+  Maximize,
+  Minus,
   MoreHorizontal,
+  Plus,
   X,
   XCircle,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -65,6 +78,7 @@ import { BarGraph } from "./bar-graph";
 import { HorizontalGraph } from "./horizontal-graph";
 import { AreaGraph } from "./area-graph";
 import { StackedBarGraph } from "./stacked-bargraph";
+import { CardContent, CardHeader, CardTitle } from "./ui/card";
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -98,6 +112,20 @@ export const columns: ColumnDef<any>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           ID
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "atm_id",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          ATM ID
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -457,6 +485,10 @@ type AreaChartDataItem = {
 };
 
 export function TransactionTable() {
+  const { id } = useParams();
+
+  console.log("ididid", id);
+
   const [filteredData, setFilteredData] = React.useState<any[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -487,11 +519,38 @@ export function TransactionTable() {
       const newEntry = data[data.length - 1];
       const entryTime = new Date(newEntry.created_at);
       const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
+      console.log("updateTransactionData id", id, typeof id, typeof Number(id));
 
-      setFilteredData((prevData) => [...prevData, newEntry]);
+      setFilteredData((prevData) => {
+        if (id !== undefined) {
+          if (newEntry.atm_id === Number(id)) {
+            console.log("Pushing entry with matching atm_id:", newEntry);
+            return [...prevData, newEntry];
+          }
+          console.log("No matching atm_id for id:", id);
+          return prevData;
+        }
+        console.log("id is undefined, adding new entry:", newEntry);
+        return [...prevData, newEntry];
+      });
 
-      // Update charts as before
       setChartData((prevChartData) => {
+        if (id !== undefined) {
+          if (newEntry.atm_id === Number(id)) {
+            console.log("Updating chart data for matching id:", id);
+            return prevChartData.map((item) => ({
+              ...item,
+              member: item.member + (newEntry.member_transaction ? 1 : 0),
+              network: item.network + (newEntry.member_transaction ? 0 : 1),
+            }));
+          }
+          console.log(
+            "No update to chart data as atm_id does not match id:",
+            id
+          );
+          return prevChartData;
+        }
+        console.log("id is undefined, updating all chart data");
         return prevChartData.map((item) => ({
           ...item,
           member: item.member + (newEntry.member_transaction ? 1 : 0),
@@ -500,6 +559,27 @@ export function TransactionTable() {
       });
 
       setHorizontalChartData((prevChartData) => {
+        if (id !== undefined) {
+          if (newEntry.atm_id === Number(id)) {
+            console.log("Updating horizontal chart data for matching id:", id);
+            return prevChartData.map((item) => {
+              if (item.transaction === "member" && newEntry.member_decliner) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              if (item.transaction === "network" && !newEntry.member_decliner) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              return item;
+            });
+          }
+          console.log(
+            "No update to horizontal chart data as atm_id does not match id:",
+            id
+          );
+          return prevChartData;
+        }
+
+        console.log("id is undefined, updating all horizontal chart data");
         return prevChartData.map((item) => {
           if (item.transaction === "member" && newEntry.member_decliner) {
             return { ...item, decliners: item.decliners + 1 };
@@ -507,17 +587,53 @@ export function TransactionTable() {
           if (item.transaction === "network" && !newEntry.member_decliner) {
             return { ...item, decliners: item.decliners + 1 };
           }
-          return item; // No changes for other items
+          return item;
         });
       });
 
       setAreaChartData((prevChartData) => {
+        if (id !== undefined) {
+          if (newEntry.atm_id === Number(id)) {
+            console.log("Updating area chart data for matching id:", id);
+
+            const existingTimeSlot = prevChartData.find(
+              (item) => item.time === timeKey
+            );
+
+            if (existingTimeSlot) {
+              return prevChartData.map((item) =>
+                item.time === timeKey
+                  ? {
+                      ...item,
+                      transactions: item.transactions + 1,
+                      amount: item.amount + newEntry.amount_transaction,
+                    }
+                  : item
+              );
+            } else {
+              return [
+                ...prevChartData,
+                {
+                  time: timeKey,
+                  transactions: 1,
+                  amount: newEntry.amount_transaction,
+                },
+              ];
+            }
+          }
+          console.log(
+            "No update to area chart data as atm_id does not match id:",
+            id
+          );
+          return prevChartData;
+        }
+
+        console.log("id is undefined, updating all area chart data");
         const existingTimeSlot = prevChartData.find(
           (item) => item.time === timeKey
         );
 
         if (existingTimeSlot) {
-          // If time slot already exists, update transactions and amount
           return prevChartData.map((item) =>
             item.time === timeKey
               ? {
@@ -528,7 +644,6 @@ export function TransactionTable() {
               : item
           );
         } else {
-          // If time slot doesn't exist, add a new entry
           return [
             ...prevChartData,
             {
@@ -544,15 +659,22 @@ export function TransactionTable() {
 
   const fetchData = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("TransactionData")
         .select("*")
         .order("created_at", { ascending: true });
 
+      if (id !== undefined) {
+        query = query.eq("atm_id", Number(id));
+      }
+
+      const { data, error } = await query;
+
       if (error) {
         throw new Error(error.message);
       }
-      updateTransactionData(data);
+      // updateTransactionData(data);
+      setFilteredData(data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -630,6 +752,7 @@ export function TransactionTable() {
           }
           className="max-w-sm"
         />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -652,6 +775,196 @@ export function TransactionTable() {
               ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <Drawer>
+          <DrawerTrigger className="mt-3" asChild>
+            <Button
+              className="w-[36px] h-[36px] mt-0 ml-[10px]"
+              variant="outline"
+            >
+              <Maximize />
+            </Button>
+          </DrawerTrigger>
+
+          <DrawerContent className="h-full">
+            <CardHeader className="relative">
+              <div className="flex items-center py-4">
+                <CardTitle>Transaction Lists</CardTitle>
+                <Input
+                  placeholder="Search..."
+                  value={
+                    (table
+                      .getColumn("transaction_type")
+                      ?.getFilterValue() as string) ?? ""
+                  }
+                  onChange={(event) =>
+                    table
+                      .getColumn("transaction_type")
+                      ?.setFilterValue(event.target.value)
+                  }
+                  className="ml-10 max-w-sm"
+                />
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="ml-auto">
+                      Columns <ChevronDown />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {table
+                      .getAllColumns()
+                      .filter((column) => column.getCanHide())
+                      .map((column) => (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                          }
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border h-[70vh] overflow-auto">
+                <Table className="min-w-full table-auto bg-gray-50 border-collapse">
+                  <TableHeader className="bg-gray-800">
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow
+                        key={headerGroup.id}
+                        className="border-b border-gray-300"
+                      >
+                        {headerGroup.headers.map((header) => (
+                          <TableHead
+                            key={header.id}
+                            className="py-3 px-4 text-left text-sm font-semibold text-white"
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+
+                  <TableBody className="bg-gray-50">
+                    <AnimatePresence>
+                      {table.getRowModel().rows?.length ? (
+                        [...table.getRowModel().rows].reverse().map((row) => (
+                          <motion.tr
+                            key={row.id}
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            transition={{ duration: 0.8 }}
+                            data-state={row.getIsSelected() && "selected"}
+                            className="border-b border-gray-300 hover:bg-blue-50"
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <TableCell
+                                key={cell.id}
+                                className="py-3 px-4 text-sm text-gray-700"
+                              >
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            ))}
+                          </motion.tr>
+                        ))
+                      ) : (
+                        <TableRow className="text-center">
+                          <TableCell
+                            colSpan={columns.length}
+                            className="h-24 py-3 text-gray-500"
+                          >
+                            No results.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </AnimatePresence>
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="flex items-center space-x-6 lg:space-x-8 mt-4">
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm font-medium">Rows per page</p>
+                  <Select
+                    value={`${table.getState().pagination.pageSize}`}
+                    onValueChange={(value) => {
+                      table.setPageSize(Number(value));
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[70px]">
+                      <SelectValue
+                        placeholder={table.getState().pagination.pageSize}
+                      />
+                    </SelectTrigger>
+                    <SelectContent side="top">
+                      {[10, 20, 30, 40, 50].map((pageSize) => (
+                        <SelectItem key={pageSize} value={`${pageSize}`}>
+                          {pageSize}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                  Page {table.getState().pagination.pageIndex + 1} of{" "}
+                  {table.getPageCount()}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    className="hidden h-8 w-8 p-0 lg:flex"
+                    onClick={() => table.setPageIndex(0)}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    <span className="sr-only">Go to first page</span>
+                    <ChevronsLeft />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-8 w-8 p-0"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    <span className="sr-only">Go to previous page</span>
+                    <ChevronLeft />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-8 w-8 p-0"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    <span className="sr-only">Go to next page</span>
+                    <ChevronRight />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="hidden h-8 w-8 p-0 lg:flex"
+                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    <span className="sr-only">Go to last page</span>
+                    <ChevronsRight />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </DrawerContent>
+        </Drawer>
       </div>
       <div className="rounded-md border">
         <Table className="min-w-full table-auto bg-gray-50 border-collapse">

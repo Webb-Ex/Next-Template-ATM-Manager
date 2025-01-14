@@ -68,8 +68,8 @@ let placeholder_data = [
     acquirer_channel: ["ATM", "POS", "Web", "Mobile"],
     member_transaction: [false, true],
     member_decliner: [false, true],
-    atm_id:[2910, 2930, 2950, 2970, 2971]
-  }
+    atm_id: [2910, 2930, 2950, 2970, 2971],
+  },
 ];
 
 // Function to insert data into Supabase
@@ -77,7 +77,10 @@ async function insertTransactionData() {
   const { error } = await supabase.from("TransactionData").insert([
     {
       id: Math.floor(100 + Math.random() * 900).toString(),
-      atm_id: placeholder_data[0].atm_id[Math.floor(Math.random() * placeholder_data[0].atm_id.length)],
+      atm_id:
+        placeholder_data[0].atm_id[
+          Math.floor(Math.random() * placeholder_data[0].atm_id.length)
+        ],
       created_at: new Date().toISOString(),
       pan: "1234567890123456",
       transaction_type:

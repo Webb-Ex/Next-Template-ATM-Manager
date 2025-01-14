@@ -1,37 +1,37 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { DialogProps } from "@radix-ui/react-dialog"
-import { Command as CommandPrimitive } from "cmdk"
-import { Search } from 'lucide-react'
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { DialogProps } from "@radix-ui/react-dialog";
+import { Command as CommandPrimitive } from "cmdk";
+import { Search } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-import { navMainItems, solutionItems } from "./sidebar-data"
+import { navMainItems, solutionItems } from "./sidebar-data";
 
 export function CommandMenu({ ...props }: DialogProps) {
-  const router = useRouter()
-  const [open, setOpen] = React.useState(false)
+  const router = useRouter();
+  const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setOpen((open) => !open)
+        e.preventDefault();
+        setOpen((open) => !open);
       }
-    }
+    };
 
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [])
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   const runCommand = React.useCallback((command: () => unknown) => {
-    setOpen(false)
-    command()
-  }, [])
+    setOpen(false);
+    command();
+  }, []);
 
   return (
     <>
@@ -49,6 +49,7 @@ export function CommandMenu({ ...props }: DialogProps) {
         </kbd>
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTitle></DialogTitle>
         <DialogContent className="overflow-hidden p-0 shadow-lg">
           <CommandPrimitive className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
             <div className="flex items-center border-b px-3">
@@ -78,7 +79,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                 {solutionItems.map((item) => (
                   <CommandPrimitive.Item
                     key={item.name}
-                    onSelect={() => runCommand(() => router.push('#'))}
+                    onSelect={() => runCommand(() => router.push("#"))}
                     className="flex cursor-pointer items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground"
                   >
                     {item.logo && <item.logo className="mr-2 h-4 w-4" />}
@@ -91,6 +92,5 @@ export function CommandMenu({ ...props }: DialogProps) {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
-

@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
 import "./globals.css";
+import SocketConnection from "@/components/connection-status";
 
 // Fonts setup
 const geistSans = Geist({
@@ -35,8 +36,6 @@ export default function CombinedLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-
   return (
     <html lang="en">
       <body
@@ -52,14 +51,17 @@ export default function CombinedLayout({
             <AppSidebar />
             <SidebarInset>
               <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <SidebarTrigger className="-ml-1" />
                   <Separator orientation="vertical" className="mr-2 h-4" />
                   <DynamicBreadcrumb />
                   <Separator orientation="vertical" className="mr-2 h-4" />
                   <CommandMenu />
                 </div>
-                <ThemeToggle />
+                <div className="flex items-center gap-2">
+                  <SocketConnection />
+                  <ThemeToggle />
+                </div>
               </header>
               <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
             </SidebarInset>
