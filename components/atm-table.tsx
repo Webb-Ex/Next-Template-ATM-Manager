@@ -22,6 +22,7 @@ import {
   Play,
   CircleStop,
   Info,
+  Banknote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +67,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import ATMDetailsDrawer from "./atm-detail-drawer";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import AtmTableHoverCard from "./atmTableHoverCard";
+import { Separator } from "./ui/separator";
+import AtmTableNotes from "./atmTableHoverCard";
 
 export default function ATMTable() {
   const [atmData, setAtmData] = React.useState<any[]>([]);
@@ -375,7 +378,7 @@ export default function ATMTable() {
               <TableHead>Location</TableHead>
               <TableHead>Configuration</TableHead>
               <TableHead>Comms / Status</TableHead>
-              <TableHead>Notes</TableHead>
+              <TableHead>Notes Remaining</TableHead>
               <TableHead>Load Status</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -438,8 +441,22 @@ export default function ATMTable() {
                     </Badge>
                   </TableCell>
 
-                  <TableCell>
-                    <AtmTableHoverCard atmId={row.Id} />
+                  <TableCell className="w-auto max-w-80">
+                    {/* <AtmTableHoverCard atmId={row.Id} /> */}
+
+                    {/* <div className="">
+                      <div className="">
+                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 5000 : 10000</Badge>
+                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 1000 : 10000</Badge>
+                      </div>
+                      
+                      <div className="">
+                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 500 : 10000</Badge>
+                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 100 : 10000</Badge>
+                      </div>
+                    </div> */}
+
+                    <AtmTableNotes atmId={row.Id} />
                   </TableCell>
 
                   <TableCell>
