@@ -31,7 +31,7 @@ const SocketConnection: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center bg-white rounded-md mr-[15px] px-2.5 py-1 border border-[hsl(var(--input))] cursor-default">
       <div className="flex items-center gap-3">
         {isConnectionOn ? (
           <div className="flex items-center gap-2 text-green-600">

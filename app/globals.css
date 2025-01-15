@@ -86,3 +86,15 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(194, 194, 194); /* Adjust color */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+}

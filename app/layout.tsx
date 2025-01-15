@@ -9,7 +9,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import DynamicBreadcrumb from "@/components/dynamic-breadcrumb";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
+// import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
 import "./globals.css";
 import SocketConnection from "@/components/connection-status";
@@ -39,7 +39,7 @@ export default function CombinedLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
         <ThemeProvider
           attribute="class"
@@ -48,11 +48,12 @@ export default function CombinedLayout({
           disableTransitionOnChange
         >
           <SidebarProvider>
+            <div className="bg-[rgba(94,114,228,var(--tw-bg-opacity))] bg-opacity-100 h-[45vh] block w-full fixed"></div>
             <AppSidebar />
             <SidebarInset>
-              <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+              <header className="flex h-16 shrink-0 items-center justify-between gap-2 px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <SidebarTrigger className="-ml-1" />
+                  <SidebarTrigger className="-ml-1 text-white" />
                   <Separator orientation="vertical" className="mr-2 h-4" />
                   <DynamicBreadcrumb />
                   <Separator orientation="vertical" className="mr-2 h-4" />
@@ -60,7 +61,7 @@ export default function CombinedLayout({
                 </div>
                 <div className="flex items-center gap-2">
                   <SocketConnection />
-                  <ThemeToggle />
+                  {/* <ThemeToggle /> */}
                 </div>
               </header>
               <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
