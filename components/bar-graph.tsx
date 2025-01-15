@@ -1,6 +1,13 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Rectangle,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import {
   Card,
@@ -19,18 +26,48 @@ import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { Button } from "./ui/button";
 import { Maximize } from "lucide-react";
 
+// interface BarGraphProps {
+//   chartData: Array<{
+//     count: string;
+//     lowCash: number;
+//     invalidPin: number;
+//     rejectedByIssuer: number;
+//     networkFailure: number;
+//     timeOut: number;
+//   }>;
+// }
+
 interface BarGraphProps {
-  chartData: Array<{ count: string; member: number; network: number }>;
+  chartData: Array<{
+    failures: string;
+    reasons: number;
+    fill: string;
+  }>;
 }
 
 const chartConfig = {
-  member: {
-    label: "Member Transactions Count",
+  reasons: {
+    label: "Failure Reasons",
+  },
+  lowCash: {
+    label: "Low Cash",
     color: "hsl(var(--chart-1))",
   },
-  network: {
-    label: "Network Transactions Count",
+  invalidPin: {
+    label: "Invalid Pin",
     color: "hsl(var(--chart-2))",
+  },
+  rejectedByIssuer: {
+    label: "Issuer Rejected",
+    color: "hsl(var(--chart-3))",
+  },
+  networkFailure: {
+    label: "Network Failure",
+    color: "hsl(var(--chart-4))",
+  },
+  timeOut: {
+    label: "Time out",
+    color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig;
 
@@ -46,7 +83,7 @@ export function BarGraph({ chartData }: BarGraphProps) {
   return (
     <Card>
       <CardHeader className="relative">
-        <CardTitle>Top 10 Failure Reasons</CardTitle>
+        <CardTitle>Top 5 Failure Reasons</CardTitle>
         <Drawer>
           <DrawerTrigger className="mt-3" asChild>
             <Button
@@ -58,29 +95,32 @@ export function BarGraph({ chartData }: BarGraphProps) {
           </DrawerTrigger>
           <DrawerContent>
             <CardHeader className="relative">
-              <CardTitle>Top 10 Failure Reasons</CardTitle>
+              <CardTitle>Top 5 Failure Reasons</CardTitle>
             </CardHeader>
             <CardContent>
               <ChartContainer className="w-full h-[75vh]" config={chartConfig}>
                 <BarChart accessibilityLayer data={chartData}>
                   <CartesianGrid vertical={false} />
                   <XAxis
-                    dataKey="count"
+                    dataKey="failures"
                     tickLine={false}
                     tickMargin={10}
                     axisLine={false}
-                    //   tickFormatter={(value) => value.slice(0, 3)}
+                    tickFormatter={(value) =>
+                      chartConfig[value as keyof typeof chartConfig]?.label
+                    }
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={10}
+                    tickFormatter={(value) => `${value}`} // You can customize the format here
                   />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent indicator="dashed" />}
+                    content={<ChartTooltipContent hideLabel />}
                   />
-                  <Bar dataKey="member" fill="var(--color-member)" radius={4} />
-                  <Bar
-                    dataKey="network"
-                    fill="var(--color-network)"
-                    radius={4}
-                  />
+                  <Bar dataKey="reasons" strokeWidth={2} radius={8} />
                 </BarChart>
               </ChartContainer>
             </CardContent>
@@ -97,18 +137,25 @@ export function BarGraph({ chartData }: BarGraphProps) {
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="count"
+              dataKey="failures"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              //   tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) =>
+                chartConfig[value as keyof typeof chartConfig]?.label
+              }
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              tickFormatter={(value) => `${value}`} // You can customize the format here
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
+              content={<ChartTooltipContent hideLabel />}
             />
-            <Bar dataKey="member" fill="var(--color-member)" radius={4} />
-            <Bar dataKey="network" fill="var(--color-network)" radius={4} />
+            <Bar dataKey="reasons" strokeWidth={2} radius={8} />
           </BarChart>
         </ChartContainer>
       </CardContent>

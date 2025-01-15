@@ -69,6 +69,7 @@ let placeholder_data = [
     member_transaction: [false, true],
     member_decliner: [false, true],
     atm_id: [2910, 2930, 2950, 2970, 2971],
+    failure_reason: [1, 2, 3, 4, 5],
   },
 ];
 
@@ -118,10 +119,7 @@ async function insertTransactionData() {
         placeholder_data[0].pos_entry_mode[
           Math.floor(Math.random() * placeholder_data[0].pos_entry_mode.length)
         ],
-      response:
-        placeholder_data[0].response[
-          Math.floor(Math.random() * placeholder_data[0].response.length)
-        ],
+      response: "00",
       settlement_date: new Date(
         new Date().setDate(new Date().getDate() + 1)
       ).toISOString(), // Tomorrow's date
@@ -143,6 +141,10 @@ async function insertTransactionData() {
       member_decliner:
         placeholder_data[0].member_decliner[
           Math.floor(Math.random() * placeholder_data[0].member_decliner.length)
+        ],
+      failure_reason:
+        placeholder_data[0].failure_reason[
+          Math.floor(Math.random() * placeholder_data[0].failure_reason.length)
         ],
     },
   ]);

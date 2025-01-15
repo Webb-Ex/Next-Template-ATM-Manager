@@ -149,50 +149,49 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "response",
     cell: ({ row }) => {
-      const response = row.getValue("response");
+      const response: string | null = row.getValue("response") as string | null;
 
-      return (
-        <div className="flex items-center gap-2 p-2 rounded-md">
-          {response === "200" && (
-            <div className="flex items-center gap-2 bg-green-100 p-1 rounded-md">
-              <CheckCircle className="text-green-500 w-5 h-5" />
-              <span className="text-sm font-medium text-green-800">
-                Approved
-              </span>
-            </div>
-          )}
-          {response === "120" && (
-            <div className="flex items-center gap-2 bg-red-100 p-1 rounded-md">
-              <XCircle className="text-red-500 w-5 h-5" />
-              <span className="text-sm font-medium text-red-800">Declined</span>
-            </div>
-          )}
-          {response === "121" && (
-            <div className="flex items-center gap-2 bg-yellow-100 p-1 rounded-md">
-              <DollarSign className="text-yellow-500 w-5 h-5" />
-              <span className="text-sm font-medium text-yellow-800">
-                Insufficient Funds
-              </span>
-            </div>
-          )}
-          {response === "122" && (
-            <div className="flex items-center gap-2 bg-purple-100 p-1 rounded-md">
-              <CreditCard className="text-purple-500 w-5 h-5" />
-              <span className="text-sm font-medium text-purple-800">
-                Invalid Card
-              </span>
-            </div>
-          )}
-          {response === "00" && (
-            <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
-              <AlertTriangle className="text-gray-500 w-5 h-5" />
-              <span className="text-sm font-medium text-gray-800">
-                Invalid Amount
-              </span>
-            </div>
-          )}
-        </div>
-      );
+      return response;
+      // <div className="flex items-center gap-2 p-2 rounded-md">
+      //   {response === "200" && (
+      //     <div className="flex items-center gap-2 bg-green-100 p-1 rounded-md">
+      //       <CheckCircle className="text-green-500 w-5 h-5" />
+      //       <span className="text-sm font-medium text-green-800">
+      //         Approved
+      //       </span>
+      //     </div>
+      //   )}
+      //   {response === "120" && (
+      //     <div className="flex items-center gap-2 bg-red-100 p-1 rounded-md">
+      //       <XCircle className="text-red-500 w-5 h-5" />
+      //       <span className="text-sm font-medium text-red-800">Declined</span>
+      //     </div>
+      //   )}
+      //   {response === "121" && (
+      //     <div className="flex items-center gap-2 bg-yellow-100 p-1 rounded-md">
+      //       <DollarSign className="text-yellow-500 w-5 h-5" />
+      //       <span className="text-sm font-medium text-yellow-800">
+      //         Insufficient Funds
+      //       </span>
+      //     </div>
+      //   )}
+      //   {response === "122" && (
+      //     <div className="flex items-center gap-2 bg-purple-100 p-1 rounded-md">
+      //       <CreditCard className="text-purple-500 w-5 h-5" />
+      //       <span className="text-sm font-medium text-purple-800">
+      //         Invalid Card
+      //       </span>
+      //     </div>
+      //   )}
+      //   {response === "00" && (
+      //     <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
+      //       <AlertTriangle className="text-gray-500 w-5 h-5" />
+      //       <span className="text-sm font-medium text-gray-800">
+      //         Invalid Amount
+      //       </span>
+      //     </div>
+      //   )}
+      // </div>
     },
     header: ({ column }) => {
       return (
@@ -394,62 +393,10 @@ export const columns: ColumnDef<any>[] = [
       );
     },
   },
-  // {
-  //   accessorKey: "member_transaction",
-  //   cell: ({ row }) => {
-  //     const isTrue = row.getValue("member_transaction");
-  //     return (
-  //       <div className="flex items-center justify-center">
-  //         {isTrue ? (
-  //           <Check className="text-green-500 h-5 w-5" />
-  //         ) : (
-  //           <X className="text-red-500 h-5 w-5" />
-  //         )}
-  //       </div>
-  //     );
-  //   },
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Member Transaction
-  //         <ArrowUpDown className="ml-2 h-4 w-4" />
-  //       </Button>
-  //     );
-  //   },
-  // },
-  // {
-  //   accessorKey: "member_decliner",
-  //   cell: ({ row }) => {
-  //     const isTrue = row.getValue("member_decliner");
-  //     return (
-  //       <div className="flex items-center justify-center">
-  //         {isTrue ? (
-  //           <Check className="text-green-500 h-5 w-5" />
-  //         ) : (
-  //           <X className="text-red-500 h-5 w-5" />
-  //         )}
-  //       </div>
-  //     );
-  //   },
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Member Decliner
-  //         <ArrowUpDown className="ml-2 h-4 w-4" />
-  //       </Button>
-  //     );
-  //   },
-  // },
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
+    cell: () => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -465,10 +412,19 @@ export const columns: ColumnDef<any>[] = [
   },
 ];
 
+// type ChartDataItem = {
+//   count: string;
+//   lowCash: number;
+//   invalidPin: number;
+//   rejectedByIssuer: number;
+//   networkFailure: number;
+//   timeOut: number;
+// };
+
 type ChartDataItem = {
-  count: string;
-  member: number;
-  network: number;
+  failures: string;
+  reasons: number;
+  fill: string;
 };
 
 type HorizontalChartDataItem = {
@@ -486,8 +442,6 @@ type AreaChartDataItem = {
 export function TransactionTable() {
   const { id } = useParams();
 
-  console.log("ididid", id);
-
   const [filteredData, setFilteredData] = React.useState<any[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -496,8 +450,22 @@ export function TransactionTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  // const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+
   const [chartData, setChartData] = useState<ChartDataItem[]>([
-    { count: "Transactions Count", member: 0, network: 0 },
+    { failures: "lowCash", reasons: 0, fill: "var(--color-lowCash)" },
+    { failures: "invalidPin", reasons: 0, fill: "var(--color-invalidPin)" },
+    {
+      failures: "rejectedByIssuer",
+      reasons: 0,
+      fill: "var(--color-rejectedByIssuer)",
+    },
+    {
+      failures: "networkFailure",
+      reasons: 0,
+      fill: "var(--color-networkFailure)",
+    },
+    { failures: "timeOut", reasons: 0, fill: "var(--color-timeOut)" },
   ]);
 
   const [horizontalChartData, setHorizontalChartData] = useState<
@@ -518,49 +486,117 @@ export function TransactionTable() {
       const newEntry = data[data.length - 1];
       const entryTime = new Date(newEntry.created_at);
       const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
-      console.log("updateTransactionData id", id, typeof id, typeof Number(id));
 
       setFilteredData((prevData) => {
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            console.log("Pushing entry with matching atm_id:", newEntry);
             return [...prevData, newEntry];
           }
-          console.log("No matching atm_id for id:", id);
           return prevData;
         }
-        console.log("id is undefined, adding new entry:", newEntry);
         return [...prevData, newEntry];
       });
+
+      // setChartData((prevChartData) => {
+      //   if (id !== undefined) {
+      //     if (newEntry.atm_id === Number(id)) {
+      //       return prevChartData.map((item) => ({
+      //         ...item,
+      //         lowCash: item.lowCash + (newEntry.failure_reason === 1 ? 1 : 0),
+      //         invalidPin:
+      //           item.invalidPin + (newEntry.failure_reason === 2 ? 1 : 0),
+      //         rejectedByIssuer:
+      //           item.rejectedByIssuer + (newEntry.failure_reason === 3 ? 1 : 0),
+      //         networkFailure:
+      //           item.networkFailure + (newEntry.failure_reason === 4 ? 1 : 0),
+      //         timeOut: item.timeOut + (newEntry.failure_reason === 5 ? 1 : 0),
+      //       }));
+      //     }
+
+      //     return prevChartData;
+      //   }
+      //   return prevChartData.map((item) => ({
+      //     ...item,
+      //     lowCash: item.lowCash + (newEntry.failure_reason === 1 ? 1 : 0),
+      //     invalidPin: item.invalidPin + (newEntry.failure_reason === 2 ? 1 : 0),
+      //     rejectedByIssuer:
+      //       item.rejectedByIssuer + (newEntry.failure_reason === 3 ? 1 : 0),
+      //     networkFailure:
+      //       item.networkFailure + (newEntry.failure_reason === 4 ? 1 : 0),
+      //     timeOut: item.timeOut + (newEntry.failure_reason === 5 ? 1 : 0),
+      //   }));
+      // });
 
       setChartData((prevChartData) => {
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            console.log("Updating chart data for matching id:", id);
-            return prevChartData.map((item) => ({
-              ...item,
-              member: item.member + (newEntry.member_transaction ? 1 : 0),
-              network: item.network + (newEntry.member_transaction ? 0 : 1),
-            }));
+            return prevChartData.map((item) => {
+              if (
+                item.failures === "lowCash" &&
+                newEntry.failure_reason === 1
+              ) {
+                return { ...item, reasons: item.reasons + 1 };
+              }
+              if (
+                item.failures === "invalidPin" &&
+                newEntry.failure_reason === 2
+              ) {
+                return { ...item, reasons: item.reasons + 1 };
+              }
+              if (
+                item.failures === "rejectedByIssuer" &&
+                newEntry.failure_reason === 3
+              ) {
+                return { ...item, reasons: item.reasons + 1 };
+              }
+              if (
+                item.failures === "networkFailure" &&
+                newEntry.failure_reason === 4
+              ) {
+                return { ...item, reasons: item.reasons + 1 };
+              }
+              if (
+                item.failures === "timeOut" &&
+                newEntry.failure_reason === 5
+              ) {
+                return { ...item, reasons: item.reasons + 1 };
+              }
+              return item;
+            });
           }
-          console.log(
-            "No update to chart data as atm_id does not match id:",
-            id
-          );
+
           return prevChartData;
         }
-        console.log("id is undefined, updating all chart data");
-        return prevChartData.map((item) => ({
-          ...item,
-          member: item.member + (newEntry.member_transaction ? 1 : 0),
-          network: item.network + (newEntry.member_transaction ? 0 : 1),
-        }));
+
+        return prevChartData.map((item) => {
+          if (item.failures === "lowCash" && newEntry.failure_reason === 1) {
+            return { ...item, reasons: item.reasons + 1 };
+          }
+          if (item.failures === "invalidPin" && newEntry.failure_reason === 2) {
+            return { ...item, reasons: item.reasons + 1 };
+          }
+          if (
+            item.failures === "rejectedByIssuer" &&
+            newEntry.failure_reason === 3
+          ) {
+            return { ...item, reasons: item.reasons + 1 };
+          }
+          if (
+            item.failures === "networkFailure" &&
+            newEntry.failure_reason === 4
+          ) {
+            return { ...item, reasons: item.reasons + 1 };
+          }
+          if (item.failures === "timeOut" && newEntry.failure_reason === 5) {
+            return { ...item, reasons: item.reasons + 1 };
+          }
+          return item;
+        });
       });
 
       setHorizontalChartData((prevChartData) => {
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            console.log("Updating horizontal chart data for matching id:", id);
             return prevChartData.map((item) => {
               if (item.transaction === "member" && newEntry.member_decliner) {
                 return { ...item, decliners: item.decliners + 1 };
@@ -571,14 +607,10 @@ export function TransactionTable() {
               return item;
             });
           }
-          console.log(
-            "No update to horizontal chart data as atm_id does not match id:",
-            id
-          );
+
           return prevChartData;
         }
 
-        console.log("id is undefined, updating all horizontal chart data");
         return prevChartData.map((item) => {
           if (item.transaction === "member" && newEntry.member_decliner) {
             return { ...item, decliners: item.decliners + 1 };
@@ -593,8 +625,6 @@ export function TransactionTable() {
       setAreaChartData((prevChartData) => {
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            console.log("Updating area chart data for matching id:", id);
-
             const existingTimeSlot = prevChartData.find(
               (item) => item.time === timeKey
             );
@@ -620,14 +650,10 @@ export function TransactionTable() {
               ];
             }
           }
-          console.log(
-            "No update to area chart data as atm_id does not match id:",
-            id
-          );
+
           return prevChartData;
         }
 
-        console.log("id is undefined, updating all area chart data");
         const existingTimeSlot = prevChartData.find(
           (item) => item.time === timeKey
         );
@@ -656,6 +682,8 @@ export function TransactionTable() {
     }
   };
 
+  console.log("Chart Data", chartData);
+
   const fetchData = async () => {
     try {
       let query = supabase
@@ -672,8 +700,14 @@ export function TransactionTable() {
       if (error) {
         throw new Error(error.message);
       }
-      // updateTransactionData(data);
-      setFilteredData(data || []);
+      // Update the response property to "Approved" in every object
+      const updatedData = (data || []).map((item) => ({
+        ...item,
+        response: Math.random() > 0.5 ? "Approved" : "Rejected",
+      }));
+
+      // Set the updated data to the filtered data state
+      setFilteredData(updatedData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -683,7 +717,6 @@ export function TransactionTable() {
     fetchData();
     socketRef.current = io("http://localhost:3000");
     const handleUpdateTable = (data: unknown) => {
-      console.log("Real-time update:", data);
       updateTransactionData(data);
     };
 
@@ -697,7 +730,44 @@ export function TransactionTable() {
     };
   }, []);
 
-  console.log("socket ref value", socketRef.current);
+  useEffect(() => {
+    if (filteredData.length > 0) {
+      const lastIndex = filteredData.length - 1;
+      const updateState = async () => {
+        if (filteredData[lastIndex].response === "00") {
+          setFilteredData((prev) => {
+            const updatedData = prev.map((item, index) =>
+              index === lastIndex ? { ...item, response: "Received" } : item
+            );
+            return updatedData;
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          setFilteredData((prev) => {
+            const updatedData = prev.map((item, index) =>
+              index === lastIndex ? { ...item, response: "In Progress" } : item
+            );
+            return updatedData;
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          setFilteredData((prev) => {
+            const updatedData = prev.map((item, index) =>
+              index === lastIndex
+                ? {
+                    ...item,
+                    response: Math.random() > 0.5 ? "Approved" : "Rejected",
+                  }
+                : item
+            );
+            return updatedData;
+          });
+        }
+      };
+
+      updateState();
+    }
+  }, [filteredData.length]);
 
   const table = useReactTable({
     data: filteredData,
@@ -710,6 +780,9 @@ export function TransactionTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: { pageSize: 50 }, // Set initial page size to 50
+    },
     state: {
       sorting,
       columnFilters,
@@ -718,18 +791,16 @@ export function TransactionTable() {
     },
   });
 
-  console.log("filteredData", filteredData);
-
   return (
     <div className="w-full">
       <div className="flex gap-[20px]">
-        <div className="w-1/3">
+        {/* <div className="w-1/3">
           <StackedBarGraph />
-        </div>
-        <div className="w-1/3">
+        </div> */}
+        <div className="w-1/2">
           <BarGraph chartData={chartData} />
         </div>
-        <div className="w-1/3">
+        <div className="w-1/2">
           <HorizontalGraph horizontalChartData={horizontalChartData} />
         </div>
       </div>
@@ -1043,7 +1114,7 @@ export function TransactionTable() {
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
+              {[50, 100, 150, 200].map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>

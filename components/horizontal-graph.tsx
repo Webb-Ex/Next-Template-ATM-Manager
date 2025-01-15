@@ -83,7 +83,13 @@ export function HorizontalGraph({ horizontalChartData }: HorizontalGraphData) {
                       chartConfig[value as keyof typeof chartConfig]?.label
                     }
                   />
-                  <XAxis dataKey="decliners" type="number" hide />
+                  {/* <XAxis dataKey="decliners" type="number" hide /> */}
+                  <XAxis
+                    dataKey="decliners"
+                    type="number"
+                    tickLine={false}
+                    axisLine={false}
+                  />
                   <ChartTooltip
                     cursor={false}
                     content={<ChartTooltipContent hideLabel />}
@@ -120,7 +126,19 @@ export function HorizontalGraph({ horizontalChartData }: HorizontalGraphData) {
                 chartConfig[value as keyof typeof chartConfig]?.label
               }
             />
-            <XAxis dataKey="decliners" type="number" hide />
+            {/* <XAxis
+              dataKey="decliners"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              tickFormatter={(value) => `${value}`}
+            /> */}
+            <XAxis
+              dataKey="decliners"
+              type="number"
+              tickLine={false}
+              axisLine={false}
+            />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
