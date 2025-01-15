@@ -1,78 +1,99 @@
 import React, { useEffect, useState } from "react";
-import {
-  HoverCard,
-  HoverCardTrigger,
-  HoverCardContent,
-} from "@/components/ui/hover-card";
 import { supabase } from "@/lib/supabaseClient";
 import { Badge } from "./ui/badge";
-import { Info, SquareArrowOutUpRight } from "lucide-react";
 import { Banknote } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-interface AtmTableHoverCardProps {
+import { motion, AnimatePresence } from "framer-motion"; // Import for animations
+
+interface AtmTableNotesProps {
   atmId: number;
 }
 
-const AtmTableHoverCard: React.FC<AtmTableHoverCardProps> = ({ atmId }) => {
+const AtmTableNotes: React.FC<AtmTableNotesProps> = ({ atmId }) => {
   const [cassetteData, setCassetteData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDataFetched, setIsDataFetched] = useState(false); // Flag to track if data is fetched
+
+  // Function to fetch the data initially
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("CassetteData")
+        .select("*")
+        .eq("atm_id", atmId);
+
+      if (error) throw error;
+
+      setCassetteData(data);
+      setIsDataFetched(true); // Mark data as fetched
+      console.log("Data fetched for ATM ID:", atmId, cassetteData);
+    } catch (error) {
+      console.error("Error fetching cassette data:", (error as any).message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCassetteData = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("CassetteData")
-          .select("*")
-          .eq("atm_id", atmId);
+    // Fetch data whenever atmId changes
+    console.log("Fetching data for ATM ID:", atmId);
 
-        if (error) throw error;
+    // Fetch initial data
+    fetchData();
 
-        setCassetteData(data);
-      } catch (error) {
-        console.error("Error fetching cassette data:", (error as any).message);
-      } finally {
-        setLoading(false);
-      }
+    // Subscribe to real-time changes for this atmId
+    const channel = supabase
+      .channel(`public:CassetteData:${atmId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "CassetteData" },
+        (payload) => {
+          // Handle real-time updates
+          console.log("PayloadPayload", payload, atmId);
+
+          if (payload.new && payload.new.atm_id === atmId) {
+            // Update cassette data only if the atm_id matches
+            setCassetteData((prevData) =>
+              prevData.map((item) =>
+                item.atm_id === payload.new.atm_id && item.id === payload.new.id
+                  ? { ...item, ...payload.new }
+                  : item
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup the subscription on component unmount or when atmId changes
+    return () => {
+      channel.unsubscribe();
     };
-
-    fetchCassetteData();
-  }, [atmId]);
+  }, [atmId]); // Add atmId as a dependency
 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
-        <Badge variant="secondary" className="cursor-pointer text-nowrap">
-          <Info className="h-3 w-3 me-1" /> Cassette
-        </Badge>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-[300px] p-4 bg-white border rounded-md shadow-md">
-        <div className="text-lg font-semibold mb-4 flex items-center gap-1">
-          Notes Remaining
-          <SquareArrowOutUpRight className="w-4 cursor-pointer" />
-        </div>
-        <div className="grid gap-2">
-          {cassetteData.map((item, index) => (
-            <React.Fragment key={index}>
-              <div className="flex items-center">
-                <div className="h-5 w-5 mr-2">
-                  <Banknote className="text-green-400" />
-                </div>
-
-                <div className="flex justify-between w-full">
-                  <span className="flex-1">{item.denomination}</span>
-                  <span className="font-semibold">{item.notesRemaining}</span>
-                </div>
-              </div>
-              <Separator className="" />
-            </React.Fragment>
-          ))}
-        </div>
-      </HoverCardContent>
-    </HoverCard>
+    <div className="flex flex-wrap">
+      <AnimatePresence>
+        {cassetteData.map((item) => (
+          <motion.div
+            key={item.id}
+            className="flex justify-between "
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Badge variant="outline" className="w-36 m-1">
+              <Banknote className="w-4 me-1 text-green-700" />
+              {item.denomination} : {item.notesRemaining}
+            </Badge>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
   );
 };
 
-export default AtmTableHoverCard;
+export default AtmTableNotes;
