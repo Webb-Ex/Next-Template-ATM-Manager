@@ -37,6 +37,12 @@ const chartConfig = {
 export function BarGraph({ chartData }: BarGraphProps) {
   // chartData = [{ count: "Transactions Count", member: 186, network: 80 }];
 
+  // 1. Low cash
+  // 2. Invalid pin
+  // 3. Rejected by issuer
+  // 4. Network failure
+  // 5. Time Out
+
   return (
     <Card>
       <CardHeader className="relative">
