@@ -69,6 +69,7 @@ let placeholder_data = [
     member_transaction: [false, true],
     member_decliner: [false, true],
     atm_id: [2910, 2930, 2950, 2970, 2971],
+    failure_reason: [1, 2, 3, 4, 5],
   },
 ];
 
@@ -79,44 +80,44 @@ async function insertTransactionData() {
       id: Math.floor(100 + Math.random() * 900).toString(),
       atm_id:
         placeholder_data[0].atm_id[
-        Math.floor(Math.random() * placeholder_data[0].atm_id.length)
+          Math.floor(Math.random() * placeholder_data[0].atm_id.length)
         ],
       created_at: new Date().toISOString(),
       pan: "1234567890123456",
       transaction_type:
         placeholder_data[0].transaction_type[
-        Math.floor(
-          Math.random() * placeholder_data[0].transaction_type.length
-        )
+          Math.floor(
+            Math.random() * placeholder_data[0].transaction_type.length
+          )
         ],
       stan: Math.floor(Math.random() * 100000).toString(), // Random STAN
       acquirer_channel:
         placeholder_data[0].acquirer_channel[
-        Math.floor(
-          Math.random() * placeholder_data[0].acquirer_channel.length
-        )
+          Math.floor(
+            Math.random() * placeholder_data[0].acquirer_channel.length
+          )
         ],
       acquirer_payment_entity:
         placeholder_data[0].acquirer_payment_entity[
-        Math.floor(
-          Math.random() * placeholder_data[0].acquirer_payment_entity.length
-        )
+          Math.floor(
+            Math.random() * placeholder_data[0].acquirer_payment_entity.length
+          )
         ],
       issuer_channel:
         placeholder_data[0].issuer_channel[
-        Math.floor(Math.random() * placeholder_data[0].issuer_channel.length)
+          Math.floor(Math.random() * placeholder_data[0].issuer_channel.length)
         ],
       product:
         placeholder_data[0].product[
-        Math.floor(Math.random() * placeholder_data[0].product.length)
+          Math.floor(Math.random() * placeholder_data[0].product.length)
         ],
       message_type:
         placeholder_data[0].message_type[
-        Math.floor(Math.random() * placeholder_data[0].message_type.length)
+          Math.floor(Math.random() * placeholder_data[0].message_type.length)
         ],
       pos_entry_mode:
         placeholder_data[0].pos_entry_mode[
-        Math.floor(Math.random() * placeholder_data[0].pos_entry_mode.length)
+          Math.floor(Math.random() * placeholder_data[0].pos_entry_mode.length)
         ],
       response: "00",
       settlement_date: new Date(
@@ -124,7 +125,7 @@ async function insertTransactionData() {
       ).toISOString(), // Tomorrow's date
       payment_company:
         placeholder_data[0].payment_company[
-        Math.floor(Math.random() * placeholder_data[0].payment_company.length)
+          Math.floor(Math.random() * placeholder_data[0].payment_company.length)
         ],
       actions: true,
       amount_transaction: Math.floor(
@@ -133,13 +134,17 @@ async function insertTransactionData() {
       currency_transaction: "PKR",
       member_transaction:
         placeholder_data[0].member_transaction[
-        Math.floor(
-          Math.random() * placeholder_data[0].member_transaction.length
-        )
+          Math.floor(
+            Math.random() * placeholder_data[0].member_transaction.length
+          )
         ],
       member_decliner:
         placeholder_data[0].member_decliner[
-        Math.floor(Math.random() * placeholder_data[0].member_decliner.length)
+          Math.floor(Math.random() * placeholder_data[0].member_decliner.length)
+        ],
+      failure_reason:
+        placeholder_data[0].failure_reason[
+          Math.floor(Math.random() * placeholder_data[0].failure_reason.length)
         ],
     },
   ]);

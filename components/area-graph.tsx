@@ -1,15 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -18,13 +12,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { Button } from "./ui/button";
 import { Maximize } from "lucide-react";
@@ -58,41 +45,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function AreaGraph({ areaChartData }: AreaGraphData) {
-  // const [timeRange, setTimeRange] = React.useState("2m");
-
-  // const filteredData = areaChartData.filter((item) => {
-  //   const currentTime = new Date();
-
-  //   // Make sure the time is correctly parsed from the "HH:mm:ss" format
-  //   const itemTimeParts = item.time.split(":");
-  //   if (itemTimeParts.length !== 3) return false; // Skip invalid time formats
-
-  //   // Create a Date object for itemTime (set today's date and the parsed time)
-  //   const itemTime = new Date(currentTime);
-  //   itemTime.setHours(Number(itemTimeParts[0]), Number(itemTimeParts[1]), Number(itemTimeParts[2]), 0);
-
-  //   let timeDifference;
-
-  //   // Get the time in milliseconds
-  //   const currentTimeMs = currentTime.getTime();
-  //   const itemTimeMs = itemTime.getTime();
-
-  //   if (timeRange === "2m") {
-  //     timeDifference = currentTimeMs - itemTimeMs;
-  //     return timeDifference <= 2 * 60 * 1000; // Last 2 minutes
-  //   } else if (timeRange === "1m") {
-  //     timeDifference = currentTimeMs - itemTimeMs;
-  //     return timeDifference <= 1 * 60 * 1000; // Last 1 minute
-  //   } else if (timeRange === "30s") {
-  //     timeDifference = currentTimeMs - itemTimeMs;
-  //     return timeDifference <= 30 * 1000; // Last 30 seconds
-  //   }
-
-  //   return false;
-  // });
-
-  // console.log("areaChartDataareaChartData", filteredData, areaChartData)
-
   return (
     <Card>
       <CardHeader className="relative flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
@@ -166,6 +118,17 @@ export function AreaGraph({ areaChartData }: AreaGraphData) {
                       });
                     }}
                   />
+                  <YAxis
+                    dataKey="amount"
+                    // type="category"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    // tickFormatter={(value) =>
+                    //   chartConfig[value as keyof typeof chartConfig]?.label
+                    // }
+                    tickFormatter={(value) => value}
+                  />
                   <ChartTooltip
                     cursor={false}
                     content={
@@ -202,25 +165,6 @@ export function AreaGraph({ areaChartData }: AreaGraphData) {
             </CardContent>
           </DrawerContent>
         </Drawer>
-        {/* <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger
-            className="w-[160px] rounded-lg sm:ml-auto"
-            aria-label="Select a value"
-          >
-            <SelectValue placeholder="Last 2 minutes" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="2m" className="rounded-lg">
-              Last 2 minutes
-            </SelectItem>
-            <SelectItem value="1m" className="rounded-lg">
-              Last 1 minute
-            </SelectItem>
-            <SelectItem value="30s" className="rounded-lg">
-              Last 30 seconds
-            </SelectItem>
-          </SelectContent>
-        </Select> */}
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
@@ -269,6 +213,15 @@ export function AreaGraph({ areaChartData }: AreaGraphData) {
                   second: "2-digit",
                 });
               }}
+            />
+
+            <YAxis
+              dataKey="amount"
+              // type="category"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value}
             />
             <ChartTooltip
               cursor={false}
