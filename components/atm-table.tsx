@@ -19,6 +19,9 @@ import {
   FileChartColumn,
   CirclePlus,
   Search,
+  Play,
+  CircleStop,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +64,8 @@ import { ATMTableSkeleton } from "./skeletons/atm-table-skeleton";
 import { supabase } from "@/lib/supabaseClient";
 import { AnimatePresence, motion } from "framer-motion";
 import ATMDetailsDrawer from "./atm-detail-drawer";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import AtmTableHoverCard from "./atmTableHoverCard";
 
 export default function ATMTable() {
   const [atmData, setAtmData] = React.useState<any[]>([]);
@@ -170,6 +175,38 @@ export default function ATMTable() {
     }
   };
 
+  const startService = async (): Promise<void> => {
+    try {
+      const response: Response = await fetch("/api/atmService", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to start the service.");
+      }
+
+      console.log("Service started.");
+    } catch (error) {
+      console.error((error as Error).message);
+    }
+  };
+
+  const stopService = async (): Promise<void> => {
+    try {
+      const response: Response = await fetch("/api/atmService", {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to stop the service.");
+      }
+
+      console.log("Service stopped.");
+    } catch (error) {
+      console.error((error as Error).message);
+    }
+  };
+
   if (isLoading) {
     return <ATMTableSkeleton />;
   }
@@ -270,7 +307,7 @@ export default function ATMTable() {
             </Tooltip>
           </TooltipProvider>
 
-          <TooltipProvider>
+          {/* <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
                 <Button variant="outline" size="icon">
@@ -281,9 +318,35 @@ export default function ATMTable() {
                 <p>Add</p>
               </TooltipContent>
             </Tooltip>
+          </TooltipProvider> */}
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="outline" size="icon" onClick={startService}>
+                  <Play className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Start Service</p>
+              </TooltipContent>
+            </Tooltip>
           </TooltipProvider>
 
           <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="outline" size="icon" onClick={stopService}>
+                  <CircleStop className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Stop Service</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
                 <Button variant="outline" size="icon">
@@ -294,7 +357,7 @@ export default function ATMTable() {
                 <p>Search</p>
               </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
+          </TooltipProvider> */}
         </div>
       </div>
 
@@ -312,6 +375,7 @@ export default function ATMTable() {
               <TableHead>Location</TableHead>
               <TableHead>Configuration</TableHead>
               <TableHead>Comms / Status</TableHead>
+              <TableHead>Notes</TableHead>
               <TableHead>Load Status</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -373,15 +437,22 @@ export default function ATMTable() {
                       {row.State}
                     </Badge>
                   </TableCell>
+
+                  <TableCell>
+                    <AtmTableHoverCard atmId={row.Id} />
+                  </TableCell>
+
                   <TableCell>
                     <div className="space-y-1">
                       <div className="text-sm font-medium">Config</div>
-                      <Progress
-                        value={parseInt(row.ConfigLoadStatus)}
-                        className="w-[60px]"
-                      />
-                      <div className="text-sm text-muted-foreground">
-                        {row.ConfigLoadStatus}%
+                      <div className="flex items-center gap-1">
+                        <Progress
+                          value={parseInt(row.ConfigLoadStatus)}
+                          className="w-[60px]"
+                        />
+                        <div className="text-sm text-muted-foreground">
+                          {row.ConfigLoadStatus}%
+                        </div>
                       </div>
                     </div>
                     <div className="text-sm mt-2">Key: {row.KeyLoadStatus}</div>

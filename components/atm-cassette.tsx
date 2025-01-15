@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Banknote, RefreshCw, ArrowDownToLine, Package, XCircle } from "lucide-react";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "@/components/ui/separator"; 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface CassetteData {
