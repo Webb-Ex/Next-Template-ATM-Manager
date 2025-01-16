@@ -150,14 +150,14 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => new Date(row.getValue("created_at")).toLocaleString(),
   },
   {
-    accessorKey: "Status",
+    accessorKey: "response",
     cell: ({ row }) => {
       const response: string | null = row.getValue("response") as string | null;
 
       return response === "Received" ? (
         <div className="w-[19%] text-center">
           <span
-            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            className="rounded-2xl text-white font-xs py-1 px-2  content-center"
             style={{ backgroundColor: "#007BFF" }} // Blue
           >
             Received
@@ -166,7 +166,7 @@ export const columns: ColumnDef<any>[] = [
       ) : response === "In Progress" ? (
         <div className="w-[19%] text-center">
           <span
-            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            className="rounded-2xl text-white font-xs py-1 px-2  content-center"
             style={{ backgroundColor: "#FFA500" }} // Orange
           >
             In Progress
@@ -175,7 +175,7 @@ export const columns: ColumnDef<any>[] = [
       ) : response === "Approved" ? (
         <div className="w-[19%] text-center">
           <span
-            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            className="rounded-2xl text-white font-xs py-1 px-2  content-center"
             style={{ backgroundColor: "#28A745" }} // Green
           >
             Approved
@@ -184,7 +184,7 @@ export const columns: ColumnDef<any>[] = [
       ) : (
         <div className="w-[19%] text-center">
           <span
-            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            className="rounded-2xl text-white font-xs py-1 px-2  content-center"
             style={{ backgroundColor: "#DC3545" }} // Red
           >
             Rejected
@@ -198,7 +198,7 @@ export const columns: ColumnDef<any>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Response
+          Status
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -509,8 +509,6 @@ export function TransactionTable() {
   const [areaChartData, setAreaChartData] = useState<AreaChartDataItem[]>([
     { time: getCurrentTimeWithOffset(0), transactions: 0, amount: 0 }, // Adjust to UTC-5
   ]);
-
-  const socketRef = useRef<Socket | null>(null);
 
   const updateTransactionData = (
     newEntry: any,
