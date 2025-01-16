@@ -24,11 +24,13 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  CircleStop,
   CreditCard,
   DollarSign,
   Maximize,
   Minus,
   MoreHorizontal,
+  Play,
   Plus,
   X,
   XCircle,
@@ -473,223 +475,229 @@ export function TransactionTable() {
 
   const socketRef = useRef<Socket | null>(null);
 
-  const updateTransactionData = (data: unknown) => {
-    if (Array.isArray(data) && data.length > 0) {
-      const newEntry = data[data.length - 1];
-      const entryTime = new Date(newEntry.created_at);
-      const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
+  const updateTransactionData = (
+    newEntry: any,
+    eventType: string,
+    oldEntry?: any
+  ) => {
+    if (!newEntry) return;
 
-      setFilteredData((prevData) => {
-        if (id !== undefined) {
-          if (newEntry.atm_id === Number(id)) {
-            return [...prevData, newEntry];
-          }
-          return prevData;
-        }
-        return [...prevData, newEntry];
-      });
+    if (eventType === "INSERT") {
+      // Handle INSERT logic (same as before)
+      setFilteredData((prevData) => [...prevData, newEntry]);
+      handleChartDataUpdate(newEntry);
+      handleHorizontalChartDataUpdate(newEntry);
+      handleAreaChartDataUpdate(newEntry);
+    } else if (eventType === "UPDATE" && oldEntry) {
+      // Handle UPDATE logic: Compare `oldEntry` and `newEntry`
+      const updatedData = filteredData.map((item) =>
+        item.id === newEntry.id ? { ...item, ...newEntry } : item
+      );
+      setFilteredData(updatedData);
 
-      setChartData((prevChartData) => {
-        let updatedData;
-        if (id !== undefined) {
-          if (newEntry.atm_id === Number(id)) {
-            updatedData = prevChartData.map((item) => {
-              if (
-                item.failures === "lowCash" &&
-                newEntry.failure_reason === 1
-              ) {
-                return { ...item, reasons: item.reasons + 1 };
-              }
-              if (
-                item.failures === "invalidPin" &&
-                newEntry.failure_reason === 2
-              ) {
-                return { ...item, reasons: item.reasons + 1 };
-              }
-              if (
-                item.failures === "rejectedByIssuer" &&
-                newEntry.failure_reason === 3
-              ) {
-                return { ...item, reasons: item.reasons + 1 };
-              }
-              if (
-                item.failures === "networkFailure" &&
-                newEntry.failure_reason === 4
-              ) {
-                return { ...item, reasons: item.reasons + 1 };
-              }
-              if (
-                item.failures === "timeOut" &&
-                newEntry.failure_reason === 5
-              ) {
-                return { ...item, reasons: item.reasons + 1 };
-              }
-              return item;
-            });
-          } else {
-            updatedData = prevChartData;
-          }
-        } else {
-          updatedData = prevChartData.map((item) => {
-            if (item.failures === "lowCash" && newEntry.failure_reason === 1) {
-              return { ...item, reasons: item.reasons + 1 };
-            }
-            if (
-              item.failures === "invalidPin" &&
-              newEntry.failure_reason === 2
-            ) {
-              return { ...item, reasons: item.reasons + 1 };
-            }
-            if (
-              item.failures === "rejectedByIssuer" &&
-              newEntry.failure_reason === 3
-            ) {
-              return { ...item, reasons: item.reasons + 1 };
-            }
-            if (
-              item.failures === "networkFailure" &&
-              newEntry.failure_reason === 4
-            ) {
-              return { ...item, reasons: item.reasons + 1 };
-            }
-            if (item.failures === "timeOut" && newEntry.failure_reason === 5) {
-              return { ...item, reasons: item.reasons + 1 };
-            }
-            return item;
-          });
-        }
+      // Update chart data based on the change
+      handleChartDataUpdate(newEntry, oldEntry);
+      handleHorizontalChartDataUpdate(newEntry, oldEntry);
+      handleAreaChartDataUpdate(newEntry, oldEntry);
+    } else if (eventType === "DELETE") {
+      // Handle DELETE logic
+      setFilteredData((prevData) =>
+        prevData.filter((item) => item.id !== newEntry.id)
+      );
 
-        return updatedData.sort((a, b) => b.reasons - a.reasons);
-      });
-
-      setHorizontalChartData((prevChartData) => {
-        let updatedData;
-        if (id !== undefined) {
-          if (newEntry.atm_id === Number(id)) {
-            updatedData = prevChartData.map((item) => {
-              if (
-                item.transaction === "scb" &&
-                newEntry.decliner_reason === 1
-              ) {
-                return { ...item, decliners: item.decliners + 1 };
-              }
-              if (
-                item.transaction === "bahl" &&
-                newEntry.decliner_reason === 2
-              ) {
-                return { ...item, decliners: item.decliners + 1 };
-              }
-              if (
-                item.transaction === "hbl" &&
-                newEntry.decliner_reason === 3
-              ) {
-                return { ...item, decliners: item.decliners + 1 };
-              }
-              if (
-                item.transaction === "national" &&
-                newEntry.decliner_reason === 4
-              ) {
-                return { ...item, decliners: item.decliners + 1 };
-              }
-              if (
-                item.transaction === "bop" &&
-                newEntry.decliner_reason === 5
-              ) {
-                return { ...item, decliners: item.decliners + 1 };
-              }
-              return item;
-            });
-          } else {
-            updatedData = prevChartData;
-          }
-        } else {
-          updatedData = prevChartData.map((item) => {
-            if (item.transaction === "scb" && newEntry.decliner_reason === 1) {
-              return { ...item, decliners: item.decliners + 1 };
-            }
-            if (item.transaction === "bahl" && newEntry.decliner_reason === 2) {
-              return { ...item, decliners: item.decliners + 1 };
-            }
-            if (item.transaction === "hbl" && newEntry.decliner_reason === 3) {
-              return { ...item, decliners: item.decliners + 1 };
-            }
-            if (
-              item.transaction === "national" &&
-              newEntry.decliner_reason === 4
-            ) {
-              return { ...item, decliners: item.decliners + 1 };
-            }
-            if (item.transaction === "bop" && newEntry.decliner_reason === 5) {
-              return { ...item, decliners: item.decliners + 1 };
-            }
-            return item;
-          });
-        }
-
-        return updatedData.sort((a, b) => b.decliners - a.decliners);
-      });
-
-      setAreaChartData((prevChartData) => {
-        if (id !== undefined) {
-          if (newEntry.atm_id === Number(id)) {
-            const existingTimeSlot = prevChartData.find(
-              (item) => item.time === timeKey
-            );
-
-            if (existingTimeSlot) {
-              return prevChartData.map((item) =>
-                item.time === timeKey
-                  ? {
-                      ...item,
-                      transactions: item.transactions + 1,
-                      amount: item.amount + newEntry.amount_transaction,
-                    }
-                  : item
-              );
-            } else {
-              return [
-                ...prevChartData,
-                {
-                  time: timeKey,
-                  transactions: 1,
-                  amount: newEntry.amount_transaction,
-                },
-              ];
-            }
-          }
-
-          return prevChartData;
-        }
-
-        const existingTimeSlot = prevChartData.find(
-          (item) => item.time === timeKey
-        );
-
-        if (existingTimeSlot) {
-          return prevChartData.map((item) =>
-            item.time === timeKey
-              ? {
-                  ...item,
-                  transactions: item.transactions + 1,
-                  amount: item.amount + newEntry.amount_transaction,
-                }
-              : item
-          );
-        } else {
-          return [
-            ...prevChartData,
-            {
-              time: timeKey,
-              transactions: 1,
-              amount: newEntry.amount_transaction,
-            },
-          ];
-        }
-      });
+      // Update chart data to remove the entry
+      handleChartDataDelete(newEntry);
+      handleHorizontalChartDataDelete(newEntry);
+      handleAreaChartDataDelete(newEntry);
     }
   };
 
-  console.log("Chart Data", chartData);
+  const handleChartDataUpdate = (newEntry: any, oldEntry?: any) => {
+    setChartData((prevData) => {
+      // Map through each failure type in the chartData state
+      const updatedData = prevData.map((item) => {
+        // Check for "lowCash" failure reason
+        if (
+          item.failures === "lowCash" &&
+          (newEntry.failure_reason === 1 || oldEntry?.failure_reason === 1)
+        ) {
+          return {
+            ...item,
+            reasons: item.reasons + (newEntry.failure_reason === 1 ? 1 : -1),
+          };
+        }
+
+        // Check for "invalidPin" failure reason
+        if (
+          item.failures === "invalidPin" &&
+          (newEntry.failure_reason === 2 || oldEntry?.failure_reason === 2)
+        ) {
+          return {
+            ...item,
+            reasons: item.reasons + (newEntry.failure_reason === 2 ? 1 : -1),
+          };
+        }
+
+        // Check for "rejectedByIssuer" failure reason
+        if (
+          item.failures === "rejectedByIssuer" &&
+          (newEntry.failure_reason === 3 || oldEntry?.failure_reason === 3)
+        ) {
+          return {
+            ...item,
+            reasons: item.reasons + (newEntry.failure_reason === 3 ? 1 : -1),
+          };
+        }
+
+        // Check for "networkFailure" failure reason
+        if (
+          item.failures === "networkFailure" &&
+          (newEntry.failure_reason === 4 || oldEntry?.failure_reason === 4)
+        ) {
+          return {
+            ...item,
+            reasons: item.reasons + (newEntry.failure_reason === 4 ? 1 : -1),
+          };
+        }
+
+        // Check for "timeOut" failure reason
+        if (
+          item.failures === "timeOut" &&
+          (newEntry.failure_reason === 5 || oldEntry?.failure_reason === 5)
+        ) {
+          return {
+            ...item,
+            reasons: item.reasons + (newEntry.failure_reason === 5 ? 1 : -1),
+          };
+        }
+
+        // Return item unchanged if no update required
+        return item;
+      });
+
+      // Return updated data sorted by the reasons in descending order
+      return updatedData.sort((a, b) => b.reasons - a.reasons);
+    });
+  };
+
+  const handleHorizontalChartDataUpdate = (newEntry: any, oldEntry?: any) => {
+    setHorizontalChartData((prevData) => {
+      // Check if the entry is for the "scb" transaction or other transaction types
+      return prevData
+        .map((item) => {
+          if (item.transaction === "scb") {
+            // Increment or decrement decliners based on failure reason
+            if (newEntry.decliner_reason === 1) {
+              return { ...item, decliners: item.decliners + 1 };
+            } else if (oldEntry?.decliner_reason === 1) {
+              return { ...item, decliners: item.decliners - 1 };
+            }
+          } else if (item.transaction === "bahl") {
+            if (newEntry.decliner_reason === 2) {
+              return { ...item, decliners: item.decliners + 1 };
+            } else if (oldEntry?.decliner_reason === 2) {
+              return { ...item, decliners: item.decliners - 1 };
+            }
+          } else if (item.transaction === "hbl") {
+            if (newEntry.decliner_reason === 3) {
+              return { ...item, decliners: item.decliners + 1 };
+            } else if (oldEntry?.decliner_reason === 3) {
+              return { ...item, decliners: item.decliners - 1 };
+            }
+          } else if (item.transaction === "national") {
+            if (newEntry.decliner_reason === 4) {
+              return { ...item, decliners: item.decliners + 1 };
+            } else if (oldEntry?.decliner_reason === 4) {
+              return { ...item, decliners: item.decliners - 1 };
+            }
+          } else if (item.transaction === "bop") {
+            if (newEntry.decliner_reason === 5) {
+              return { ...item, decliners: item.decliners + 1 };
+            } else if (oldEntry?.decliner_reason === 5) {
+              return { ...item, decliners: item.decliners - 1 };
+            }
+          }
+          // Return item if no update is required
+          return item;
+        })
+        .sort((a, b) => b.decliners - a.decliners); // Sort by decliners, descending
+    });
+  };
+
+  const handleAreaChartDataUpdate = (newEntry: any, oldEntry?: any) => {
+    const entryTime = new Date(newEntry.created_at);
+    const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "12:44:00"
+
+    setAreaChartData((prevData) => {
+      const existingTimeSlot = prevData.find((item) => item.time === timeKey);
+
+      if (existingTimeSlot) {
+        return prevData.map((item) =>
+          item.time === timeKey
+            ? {
+                ...item,
+                transactions: item.transactions + 1,
+                amount: item.amount + newEntry.amount_transaction,
+              }
+            : item
+        );
+      } else {
+        return [
+          ...prevData,
+          {
+            time: timeKey,
+            transactions: 1,
+            amount: newEntry.amount_transaction,
+          },
+        ];
+      }
+    });
+  };
+
+  const handleChartDataDelete = (deletedEntry: any) => {
+    setChartData((prevData) => {
+      return prevData.map((item) => {
+        if (item.failures === "lowCash" && deletedEntry.failure_reason === 1) {
+          return { ...item, reasons: item.reasons - 1 };
+        }
+        return item;
+      });
+    });
+  };
+
+  const handleHorizontalChartDataDelete = (deletedEntry: any) => {
+    setHorizontalChartData((prevData) => {
+      return prevData.map((item) => {
+        if (item.transaction === "scb" && deletedEntry.decliner_reason === 1) {
+          return { ...item, decliners: item.decliners - 1 };
+        }
+        return item;
+      });
+    });
+  };
+
+  const handleAreaChartDataDelete = (deletedEntry: any) => {
+    if (!deletedEntry.old || !deletedEntry.old.id) {
+      console.error("Delete entry is missing ID:", deletedEntry);
+      return; // Exit if ID is missing
+    }
+
+    const timeKey = getCurrentTimeWithOffset(0); // Use a fallback time key if needed
+
+    setAreaChartData((prevData) => {
+      return prevData.map((item) => {
+        // Replace the time comparison with the logic that handles 'id' or other unique fields
+        if (item.time === timeKey) {
+          return {
+            ...item,
+            transactions: item.transactions - 1,
+            amount: item.amount - deletedEntry.old.amount_transaction, // Assuming amount_transaction exists in the payload
+          };
+        }
+        return item;
+      });
+    });
+  };
 
   const fetchData = async () => {
     try {
@@ -720,22 +728,33 @@ export function TransactionTable() {
     }
   };
 
-  console.log("Fetched Data", filteredData);
-
   useEffect(() => {
     fetchData();
-    socketRef.current = io("http://localhost:3000");
-    const handleUpdateTable = (data: unknown) => {
-      updateTransactionData(data);
-    };
 
-    socketRef.current.on("updateTable", handleUpdateTable);
+    const channel = supabase
+      .channel("public:TransactionData")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "TransactionData" },
+        (payload) => {
 
+          const { eventType, new: newEntry, old: oldEntry } = payload;
+
+          // Handle each event type
+          if (eventType === "INSERT") {
+            updateTransactionData(newEntry, eventType);
+          } else if (eventType === "UPDATE") {
+            updateTransactionData(newEntry, eventType, oldEntry);
+          } else if (eventType === "DELETE") {
+            updateTransactionData(newEntry, eventType);
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup on unmount
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current.off("updateTable", handleUpdateTable);
-      }
+      channel.unsubscribe();
     };
   }, []);
 
