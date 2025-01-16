@@ -30,6 +30,7 @@ import {
   Minus,
   MoreHorizontal,
   Plus,
+  Search,
   X,
   XCircle,
 } from "lucide-react";
@@ -726,6 +727,10 @@ export function TransactionTable() {
     fetchData();
     socketRef.current = io("http://localhost:3000");
     const handleUpdateTable = (data: unknown) => {
+      console.log(
+        "handleUpdateTablehandleUpdateTablehandleUpdateTablehandleUpdateTable",
+        data
+      );
       updateTransactionData(data);
     };
 
@@ -912,7 +917,7 @@ export function TransactionTable() {
             <CardContent>
               <div className="rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
                 <Table className="min-w-full table-auto bg-gray-50 border-collapse rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
-                  <TableHeader className="bg-gray-800">
+                  <TableHeader className="bg-[#3f83ff]">
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow
                         key={headerGroup.id}
@@ -963,11 +968,22 @@ export function TransactionTable() {
                         ))
                       ) : (
                         <TableRow className="text-center">
-                          <TableCell
+                          {/* <TableCell
                             colSpan={columns.length}
                             className="h-24 py-3 text-gray-500"
                           >
                             No results.
+                          </TableCell> */}
+                          <TableCell
+                            colSpan={columns.length}
+                            className="h-24 py-3 text-center bg-gray-50 border-t border-gray-200"
+                          >
+                            <div className="flex flex-col items-center justify-center space-y-2">
+                              <Search className="w-10 h-10 text-gray-400" />
+                              <p className="text-gray-500 text-sm font-medium">
+                                No results found
+                              </p>
+                            </div>
                           </TableCell>
                         </TableRow>
                       )}
@@ -1047,7 +1063,7 @@ export function TransactionTable() {
       </div>
       <div className="rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
         <Table className="min-w-full table-auto bg-gray-50 border-collapse rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
-          <TableHeader className="bg-gray-800">
+          <TableHeader className="bg-[#3f83ff]">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
@@ -1100,9 +1116,14 @@ export function TransactionTable() {
                 <TableRow className="text-center">
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 py-3 text-gray-500"
+                    className="h-24 py-3 text-center bg-white border-t border-gray-200"
                   >
-                    No results.
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Search className="w-10 h-10 text-gray-400" />
+                      <p className="text-gray-500 text-sm font-medium">
+                        No results found
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

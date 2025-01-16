@@ -53,7 +53,7 @@ let placeholder_data = [
       "Discover",
       "Others",
     ],
-    issuer_channel: ["ATM"],
+    issuer_channel: ["iHost", "Mobile", "Web", "ATM"],
     product: ["ProductA", "ProductB", "ProductC", "ProductD", "Others"],
     message_type: ["0200", "0300", "0400", "0800"],
     pos_entry_mode: ["Magnetic", "Chip", "Contactless", "Others"],
@@ -174,7 +174,10 @@ supabase
   )
   .subscribe();
 
-setInterval(insertTransactionData, 1000);
+setInterval(
+  insertTransactionData,
+  Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000
+);
 
 io.on("connection", async (socket) => {
   console.log("Client connected");

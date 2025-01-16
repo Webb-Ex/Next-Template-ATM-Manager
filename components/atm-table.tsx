@@ -218,29 +218,28 @@ export default function ATMTable() {
 
   const deviceStatusData = [
     {
-      value: 7, 
+      value: 7,
       label: "Pending Devices",
     },
     {
-      value: 12, 
+      value: 12,
       label: "Normal Devices",
     },
     {
-      value: 0, 
+      value: 0,
       label: "Warning Devices",
     },
     {
-      value: 0, 
+      value: 0,
       label: "Critical Devices",
     },
   ];
-  
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <div className="">
-          <h2 className="text-xl">ATM Profiles</h2>
+          <h2 className="text-xl text-white">ATM Profiles</h2>
         </div>
         <div className="flex gap-2">
           <Menubar>
@@ -386,26 +385,40 @@ export default function ATMTable() {
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">
+      <div className="rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
+        <Table className="min-w-full table-auto bg-gray-50 border-collapse rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
+          <TableHeader className="bg-[#3f83ff]">
+            <TableRow className="border-b border-gray-300">
+              <TableHead className="w-[50px] py-3 px-4 text-left text-sm font-semibold text-white">
                 <Checkbox
                   checked={selectedRows.length === paginatedData.length}
                   onCheckedChange={toggleAllRows}
                 />
               </TableHead>
-              <TableHead>ATM Info</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Configuration</TableHead>
-              <TableHead>Comms / Status</TableHead>
-              <TableHead>Notes Remaining</TableHead>
-              <TableHead>Load Status</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-white">
+                ATM Info
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-white">
+                Location
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-white">
+                Configuration
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-white">
+                Comms / Status
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-white">
+                Notes Remaining
+              </TableHead>
+              <TableHead className="py-3 px-4 text-left text-sm font-semibold text-white">
+                Load Status
+              </TableHead>
+              <TableHead className="w-[100px] py-3 px-4 text-left text-sm font-semibold text-white">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="bg-gray-50">
             <AnimatePresence>
               {paginatedData.map((row) => (
                 <motion.tr
@@ -514,11 +527,7 @@ export default function ATMTable() {
                         >
                           View
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          disabled
-                        >
-                          Edit
-                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled>Edit</DropdownMenuItem>
                         <DropdownMenuItem>
                           <Link href={`/Monitoring/Transactions/${row.Id}`}>
                             View Transactions

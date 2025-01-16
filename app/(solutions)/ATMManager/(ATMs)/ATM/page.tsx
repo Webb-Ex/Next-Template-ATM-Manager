@@ -1,17 +1,19 @@
-"use client"
+"use client";
 
-import { Suspense } from 'react'
-import ATMTable from "@/components/atm-table"
-import ISRChart from "@/components/isr-chart"
-import SSEChart from "@/components/sse-chart"
-import { ATMCassettes } from '@/components/atm-cassettes'
-import ATMHeatMap from '@/components/atm-heatmap'
+import { Suspense } from "react";
+import ATMTable from "@/components/atm-table";
+import ISRChart from "@/components/isr-chart";
+import SSEChart from "@/components/sse-chart";
+import { ATMCassettes } from "@/components/atm-cassettes";
+import ATMHeatMap from "@/components/atm-heatmap";
 
 export default function DashboardPage() {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">ATM Management Dashboard</h1>
-      
+      <h1 className="text-2xl text-white font-bold mb-6">
+        ATM Management Dashboard
+      </h1>
+
       {/* <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">ATM Cassettes</h2>
         <ATMCassettes />
@@ -42,6 +44,5 @@ export default function DashboardPage() {
         </div>
       </div> */}
     </div>
-  )
+  );
 }
-

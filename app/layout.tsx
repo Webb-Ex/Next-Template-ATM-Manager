@@ -48,7 +48,8 @@ export default function CombinedLayout({
           disableTransitionOnChange
         >
           <SidebarProvider>
-            <div className="bg-[rgba(94,114,228,var(--tw-bg-opacity))] bg-opacity-100 h-[45vh] block w-full fixed"></div>
+            <div className="bg-gradient-to-t from-[#f9fafc] to-[#3f83ff] h-[45vh] block w-full fixed"></div>
+
             <AppSidebar />
             <SidebarInset>
               <header className="flex h-16 shrink-0 items-center justify-between gap-2 px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
