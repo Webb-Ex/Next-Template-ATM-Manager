@@ -66,9 +66,11 @@ import { supabase } from "@/lib/supabaseClient";
 import { AnimatePresence, motion } from "framer-motion";
 import ATMDetailsDrawer from "./atm-detail-drawer";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import AtmTableHoverCard from "./atmTableHoverCard";
+import AtmTableHoverCard from "./atmTableNotes";
 import { Separator } from "./ui/separator";
-import AtmTableNotes from "./atmTableHoverCard";
+import AtmTableNotes from "./atmTableNotes";
+import { MultiSegmentProgress } from "./customProgressBar";
+import { DeviceStatusProgress } from "./deviceStatusProgress";
 
 export default function ATMTable() {
   const [atmData, setAtmData] = React.useState<any[]>([]);
@@ -213,6 +215,26 @@ export default function ATMTable() {
   if (isLoading) {
     return <ATMTableSkeleton />;
   }
+
+  const deviceStatusData = [
+    {
+      value: 7, 
+      label: "Pending Devices",
+    },
+    {
+      value: 12, 
+      label: "Normal Devices",
+    },
+    {
+      value: 0, 
+      label: "Warning Devices",
+    },
+    {
+      value: 0, 
+      label: "Critical Devices",
+    },
+  ];
+  
 
   return (
     <div>
@@ -442,37 +464,40 @@ export default function ATMTable() {
                   </TableCell>
 
                   <TableCell className="w-auto max-w-80">
-                    {/* <AtmTableHoverCard atmId={row.Id} /> */}
-
-                    {/* <div className="">
-                      <div className="">
-                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 5000 : 10000</Badge>
-                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 1000 : 10000</Badge>
-                      </div>
-                      
-                      <div className="">
-                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 500 : 10000</Badge>
-                        <Badge className="m-1 w-36" variant="outline"><Banknote className="w-4 me-1 text-green-700" />PKR 100 : 10000</Badge>
-                      </div>
-                    </div> */}
-
                     <AtmTableNotes atmId={row.Id} />
                   </TableCell>
 
                   <TableCell>
                     <div className="space-y-1">
-                      <div className="text-sm font-medium">Config</div>
-                      <div className="flex items-center gap-1">
-                        <Progress
-                          value={parseInt(row.ConfigLoadStatus)}
-                          className="w-[60px]"
-                        />
-                        <div className="text-sm text-muted-foreground">
-                          {row.ConfigLoadStatus}%
-                        </div>
-                      </div>
+                      {row.ConfigLoadStatus < 100 ? (
+                        <>
+                          <div className="flex items-center gap-1">
+                            <MultiSegmentProgress
+                              className="w-[60px]"
+                              segments={[
+                                {
+                                  value: row.ConfigLoadStatus,
+                                  color: "bg-green-500",
+                                },
+                              ]}
+                            />
+                            <div className="text-sm text-muted-foreground">
+                              {row.ConfigLoadStatus}%
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium">
+                            {row.ConfigLoadStatus == 100
+                              ? "Loaded"
+                              : "Loading..."}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <DeviceStatusProgress segments={deviceStatusData} />
+                          <div>Devices Status</div>
+                        </>
+                      )}
                     </div>
-                    <div className="text-sm mt-2">Key: {row.KeyLoadStatus}</div>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -490,7 +515,7 @@ export default function ATMTable() {
                           View
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          disabled={!row.IsMarkNonOperationalAllowed}
+                          disabled
                         >
                           Edit
                         </DropdownMenuItem>
