@@ -78,7 +78,7 @@ let placeholder_data = [
 async function insertTransactionData() {
   const { error } = await supabase.from("TransactionData").insert([
     {
-      id: Math.floor(100 + Math.random() * 900).toString(),
+      id: Math.floor(100 + Math.random() * (20000 - 100)).toString(),
       atm_id:
         placeholder_data[0].atm_id[
           Math.floor(Math.random() * placeholder_data[0].atm_id.length)
