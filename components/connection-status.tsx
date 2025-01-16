@@ -36,7 +36,7 @@ const SocketConnection: React.FC = () => {
         {isConnectionOn ? (
           <div className="flex items-center gap-2 text-green-600">
             <Wifi className="w-6 h-6" />
-            <h1 className="text-lg font-semibold">Connected</h1>
+            <h1 className="text-lg font-semibold">Online</h1>
           </div>
         ) : (
           <motion.div
@@ -45,7 +45,7 @@ const SocketConnection: React.FC = () => {
             transition={{ duration: 1, repeat: Infinity }}
           >
             <WifiOff className="w-6 h-6" />
-            <h1 className="text-lg font-semibold">Disconnected</h1>
+            <h1 className="text-lg font-semibold">Offline</h1>
           </motion.div>
         )}
       </div>

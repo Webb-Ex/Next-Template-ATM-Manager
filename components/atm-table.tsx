@@ -71,6 +71,7 @@ import { Separator } from "./ui/separator";
 import AtmTableNotes from "./atmTableNotes";
 import { MultiSegmentProgress } from "./customProgressBar";
 import { DeviceStatusProgress } from "./deviceStatusProgress";
+import StartStopServiceButton from "./startStopServiceButton";
 
 export default function ATMTable() {
   const [atmData, setAtmData] = React.useState<any[]>([]);
@@ -331,6 +332,9 @@ export default function ATMTable() {
             </Tooltip>
           </TooltipProvider>
 
+          <StartStopServiceButton serviceType="atmService" />
+
+
           {/* <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
@@ -344,32 +348,6 @@ export default function ATMTable() {
             </Tooltip>
           </TooltipProvider> */}
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Button variant="outline" size="icon" onClick={startService}>
-                  <Play className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Start Service</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Button variant="outline" size="icon" onClick={stopService}>
-                  <CircleStop className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Stop Service</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
           {/* <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
@@ -382,6 +360,9 @@ export default function ATMTable() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider> */}
+
+
+          
         </div>
       </div>
 

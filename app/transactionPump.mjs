@@ -53,7 +53,7 @@ let placeholder_data = [
       "Discover",
       "Others",
     ],
-    issuer_channel: ["iHost", "Mobile", "Web", "ATM"],
+    issuer_channel: ["ATM"],
     product: ["ProductA", "ProductB", "ProductC", "ProductD", "Others"],
     message_type: ["0200", "0300", "0400", "0800"],
     pos_entry_mode: ["Magnetic", "Chip", "Contactless", "Others"],
