@@ -148,11 +148,47 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => new Date(row.getValue("created_at")).toLocaleString(),
   },
   {
-    accessorKey: "response",
+    accessorKey: "Status",
     cell: ({ row }) => {
       const response: string | null = row.getValue("response") as string | null;
 
-      return response;
+      return response === "Received" ? (
+        <div className="w-[19%] text-center">
+          <span
+            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            style={{ backgroundColor: "#007BFF" }} // Blue
+          >
+            Received
+          </span>
+        </div>
+      ) : response === "In Progress" ? (
+        <div className="w-[19%] text-center">
+          <span
+            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            style={{ backgroundColor: "#FFA500" }} // Orange
+          >
+            In Progress
+          </span>
+        </div>
+      ) : response === "Approved" ? (
+        <div className="w-[19%] text-center">
+          <span
+            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            style={{ backgroundColor: "#28A745" }} // Green
+          >
+            Approved
+          </span>
+        </div>
+      ) : (
+        <div className="w-[19%] text-center">
+          <span
+            className="rounded-2xl text-white font-medium py-1 px-2 text-base content-center"
+            style={{ backgroundColor: "#DC3545" }} // Red
+          >
+            Rejected
+          </span>
+        </div>
+      );
     },
     header: ({ column }) => {
       return (
