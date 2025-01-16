@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Rectangle,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -26,17 +19,6 @@ import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { Button } from "./ui/button";
 import { Maximize } from "lucide-react";
 
-// interface BarGraphProps {
-//   chartData: Array<{
-//     count: string;
-//     lowCash: number;
-//     invalidPin: number;
-//     rejectedByIssuer: number;
-//     networkFailure: number;
-//     timeOut: number;
-//   }>;
-// }
-
 interface BarGraphProps {
   chartData: Array<{
     failures: string;
@@ -47,7 +29,7 @@ interface BarGraphProps {
 
 const chartConfig = {
   reasons: {
-    label: "Failure Reasons",
+    label: "Reasons",
   },
   lowCash: {
     label: "Low Cash",
@@ -55,19 +37,19 @@ const chartConfig = {
   },
   invalidPin: {
     label: "Invalid Pin",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--chart-1))",
   },
   rejectedByIssuer: {
     label: "Issuer Rejected",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(var(--chart-1))",
   },
   networkFailure: {
     label: "Network Failure",
-    color: "hsl(var(--chart-4))",
+    color: "hsl(var(--chart-1))",
   },
   timeOut: {
-    label: "Time out",
-    color: "hsl(var(--chart-5))",
+    label: "Timed out",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
 

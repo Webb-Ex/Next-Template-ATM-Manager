@@ -471,12 +471,22 @@ export function TransactionTable() {
   const [horizontalChartData, setHorizontalChartData] = useState<
     HorizontalChartDataItem[]
   >([
-    { transaction: "member", decliners: 0, fill: "var(--color-member)" },
-    { transaction: "network", decliners: 0, fill: "var(--color-network)" },
+    { transaction: "scb", decliners: 0, fill: "var(--color-scb)" },
+    { transaction: "bahl", decliners: 0, fill: "var(--color-bahl)" },
+    { transaction: "hbl", decliners: 0, fill: "var(--color-hbl)" },
+    { transaction: "national", decliners: 0, fill: "var(--color-national)" },
+    { transaction: "bop", decliners: 0, fill: "var(--color-bop)" },
   ]);
 
+  const getCurrentTimeWithOffset = (offsetInHours: number): string => {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000; // Convert to UTC
+    const targetTime = new Date(utc + offsetInHours * 3600000); // Apply offset
+    return targetTime.toTimeString().split(" ")[0]; // Get "HH:mm:ss"
+  };
+
   const [areaChartData, setAreaChartData] = useState<AreaChartDataItem[]>([
-    { time: "", transactions: 0, amount: 0 },
+    { time: getCurrentTimeWithOffset(0), transactions: 0, amount: 0 }, // Adjust to UTC-5
   ]);
 
   const socketRef = useRef<Socket | null>(null);
@@ -497,40 +507,11 @@ export function TransactionTable() {
         return [...prevData, newEntry];
       });
 
-      // setChartData((prevChartData) => {
-      //   if (id !== undefined) {
-      //     if (newEntry.atm_id === Number(id)) {
-      //       return prevChartData.map((item) => ({
-      //         ...item,
-      //         lowCash: item.lowCash + (newEntry.failure_reason === 1 ? 1 : 0),
-      //         invalidPin:
-      //           item.invalidPin + (newEntry.failure_reason === 2 ? 1 : 0),
-      //         rejectedByIssuer:
-      //           item.rejectedByIssuer + (newEntry.failure_reason === 3 ? 1 : 0),
-      //         networkFailure:
-      //           item.networkFailure + (newEntry.failure_reason === 4 ? 1 : 0),
-      //         timeOut: item.timeOut + (newEntry.failure_reason === 5 ? 1 : 0),
-      //       }));
-      //     }
-
-      //     return prevChartData;
-      //   }
-      //   return prevChartData.map((item) => ({
-      //     ...item,
-      //     lowCash: item.lowCash + (newEntry.failure_reason === 1 ? 1 : 0),
-      //     invalidPin: item.invalidPin + (newEntry.failure_reason === 2 ? 1 : 0),
-      //     rejectedByIssuer:
-      //       item.rejectedByIssuer + (newEntry.failure_reason === 3 ? 1 : 0),
-      //     networkFailure:
-      //       item.networkFailure + (newEntry.failure_reason === 4 ? 1 : 0),
-      //     timeOut: item.timeOut + (newEntry.failure_reason === 5 ? 1 : 0),
-      //   }));
-      // });
-
       setChartData((prevChartData) => {
+        let updatedData;
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            return prevChartData.map((item) => {
+            updatedData = prevChartData.map((item) => {
               if (
                 item.failures === "lowCash" &&
                 newEntry.failure_reason === 1
@@ -563,63 +544,107 @@ export function TransactionTable() {
               }
               return item;
             });
+          } else {
+            updatedData = prevChartData;
           }
-
-          return prevChartData;
+        } else {
+          updatedData = prevChartData.map((item) => {
+            if (item.failures === "lowCash" && newEntry.failure_reason === 1) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (
+              item.failures === "invalidPin" &&
+              newEntry.failure_reason === 2
+            ) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (
+              item.failures === "rejectedByIssuer" &&
+              newEntry.failure_reason === 3
+            ) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (
+              item.failures === "networkFailure" &&
+              newEntry.failure_reason === 4
+            ) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (item.failures === "timeOut" && newEntry.failure_reason === 5) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            return item;
+          });
         }
 
-        return prevChartData.map((item) => {
-          if (item.failures === "lowCash" && newEntry.failure_reason === 1) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (item.failures === "invalidPin" && newEntry.failure_reason === 2) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (
-            item.failures === "rejectedByIssuer" &&
-            newEntry.failure_reason === 3
-          ) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (
-            item.failures === "networkFailure" &&
-            newEntry.failure_reason === 4
-          ) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (item.failures === "timeOut" && newEntry.failure_reason === 5) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          return item;
-        });
+        return updatedData.sort((a, b) => b.reasons - a.reasons);
       });
 
       setHorizontalChartData((prevChartData) => {
+        let updatedData;
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            return prevChartData.map((item) => {
-              if (item.transaction === "member" && newEntry.member_decliner) {
+            updatedData = prevChartData.map((item) => {
+              if (
+                item.transaction === "scb" &&
+                newEntry.decliner_reason === 1
+              ) {
                 return { ...item, decliners: item.decliners + 1 };
               }
-              if (item.transaction === "network" && !newEntry.member_decliner) {
+              if (
+                item.transaction === "bahl" &&
+                newEntry.decliner_reason === 2
+              ) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              if (
+                item.transaction === "hbl" &&
+                newEntry.decliner_reason === 3
+              ) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              if (
+                item.transaction === "national" &&
+                newEntry.decliner_reason === 4
+              ) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              if (
+                item.transaction === "bop" &&
+                newEntry.decliner_reason === 5
+              ) {
                 return { ...item, decliners: item.decliners + 1 };
               }
               return item;
             });
+          } else {
+            updatedData = prevChartData;
           }
-
-          return prevChartData;
+        } else {
+          updatedData = prevChartData.map((item) => {
+            if (item.transaction === "scb" && newEntry.decliner_reason === 1) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (item.transaction === "bahl" && newEntry.decliner_reason === 2) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (item.transaction === "hbl" && newEntry.decliner_reason === 3) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (
+              item.transaction === "national" &&
+              newEntry.decliner_reason === 4
+            ) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (item.transaction === "bop" && newEntry.decliner_reason === 5) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            return item;
+          });
         }
 
-        return prevChartData.map((item) => {
-          if (item.transaction === "member" && newEntry.member_decliner) {
-            return { ...item, decliners: item.decliners + 1 };
-          }
-          if (item.transaction === "network" && !newEntry.member_decliner) {
-            return { ...item, decliners: item.decliners + 1 };
-          }
-          return item;
-        });
+        return updatedData.sort((a, b) => b.decliners - a.decliners);
       });
 
       setAreaChartData((prevChartData) => {
