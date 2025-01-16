@@ -70,6 +70,7 @@ let placeholder_data = [
     member_decliner: [false, true],
     atm_id: [2910, 2930, 2950, 2970, 2971],
     failure_reason: [1, 2, 3, 4, 5],
+    decliner_reason: [1, 2, 3, 4, 5],
   },
 ];
 
@@ -146,6 +147,10 @@ async function insertTransactionData() {
         placeholder_data[0].failure_reason[
           Math.floor(Math.random() * placeholder_data[0].failure_reason.length)
         ],
+      decliner_reason:
+        placeholder_data[0].decliner_reason[
+          Math.floor(Math.random() * placeholder_data[0].decliner_reason.length)
+        ],
     },
   ]);
 
@@ -169,10 +174,7 @@ supabase
   )
   .subscribe();
 
-setInterval(
-  insertTransactionData,
-  Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000
-);
+setInterval(insertTransactionData, 1000);
 
 io.on("connection", async (socket) => {
   console.log("Client connected");

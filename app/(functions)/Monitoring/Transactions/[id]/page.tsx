@@ -8,7 +8,9 @@ const page = () => {
 
   return (
     <div className="p-4 overflow-auto w-full">
-      <h1 className="text-xl font-bold mb-4">Transactions for ATM {id}</h1>
+      <h1 className="text-xl font-bold mb-4 text-white">
+        Transactions for ATM {id}
+      </h1>
 
       <div className="overflow-auto">
         <TransactionTable />

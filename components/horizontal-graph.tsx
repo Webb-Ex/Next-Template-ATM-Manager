@@ -33,14 +33,26 @@ interface HorizontalGraphData {
 
 const chartConfig = {
   decliners: {
-    label: "decliners",
+    label: "Decliners",
   },
-  member: {
-    label: "Member",
-    color: "hsl(var(--chart-1))",
+  scb: {
+    label: "SCB",
+    color: "hsl(var(--chart-2))",
   },
-  network: {
-    label: "Network",
+  bahl: {
+    label: "BAHL",
+    color: "hsl(var(--chart-2))",
+  },
+  hbl: {
+    label: "HBL",
+    color: "hsl(var(--chart-2))",
+  },
+  national: {
+    label: "NBP",
+    color: "hsl(var(--chart-2))",
+  },
+  bop: {
+    label: "BOP",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
@@ -49,7 +61,7 @@ export function HorizontalGraph({ horizontalChartData }: HorizontalGraphData) {
   return (
     <Card>
       <CardHeader className="relative">
-        <CardTitle>Top 10 Decliners</CardTitle>
+        <CardTitle>Top 5 Decliners</CardTitle>
         <Drawer>
           <DrawerTrigger className="mt-3" asChild>
             <Button
@@ -61,7 +73,7 @@ export function HorizontalGraph({ horizontalChartData }: HorizontalGraphData) {
           </DrawerTrigger>
           <DrawerContent>
             <CardHeader className="relative">
-              <CardTitle>Top 10 Failure Reasons</CardTitle>
+              <CardTitle>Top 5 Decliners</CardTitle>
             </CardHeader>
             <CardContent>
               <ChartContainer className="w-full h-[75vh]" config={chartConfig}>
@@ -100,7 +112,7 @@ export function HorizontalGraph({ horizontalChartData }: HorizontalGraphData) {
             </CardContent>
             <CardFooter className="flex-col items-start gap-2 text-sm">
               <div className="leading-none text-muted-foreground">
-                Showing Failure Reasons
+                Showing Decliners
               </div>
             </CardFooter>
           </DrawerContent>
@@ -149,7 +161,7 @@ export function HorizontalGraph({ horizontalChartData }: HorizontalGraphData) {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="leading-none text-muted-foreground">
-          Showing Decliners Reasons
+          Showing Decliners
         </div>
       </CardFooter>
     </Card>

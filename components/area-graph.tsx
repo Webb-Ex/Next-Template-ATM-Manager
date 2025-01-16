@@ -36,11 +36,11 @@ const chartConfig = {
   },
   transactions: {
     label: "Number of Transactions",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(var(--chart-3))",
   },
   amount: {
     label: "Amount",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--chart-4))",
   },
 } satisfies ChartConfig;
 

@@ -100,8 +100,8 @@ export const columns: ColumnDef<any>[] = [
         aria-label="Select row"
       />
     ),
-    enableSorting: false,
-    enableHiding: false,
+    enableSorting: true,
+    enableHiding: true,
   },
   {
     accessorKey: "id",
@@ -139,7 +139,7 @@ export const columns: ColumnDef<any>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Created At
+          Transaction Time
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -152,46 +152,6 @@ export const columns: ColumnDef<any>[] = [
       const response: string | null = row.getValue("response") as string | null;
 
       return response;
-      // <div className="flex items-center gap-2 p-2 rounded-md">
-      //   {response === "200" && (
-      //     <div className="flex items-center gap-2 bg-green-100 p-1 rounded-md">
-      //       <CheckCircle className="text-green-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-green-800">
-      //         Approved
-      //       </span>
-      //     </div>
-      //   )}
-      //   {response === "120" && (
-      //     <div className="flex items-center gap-2 bg-red-100 p-1 rounded-md">
-      //       <XCircle className="text-red-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-red-800">Declined</span>
-      //     </div>
-      //   )}
-      //   {response === "121" && (
-      //     <div className="flex items-center gap-2 bg-yellow-100 p-1 rounded-md">
-      //       <DollarSign className="text-yellow-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-yellow-800">
-      //         Insufficient Funds
-      //       </span>
-      //     </div>
-      //   )}
-      //   {response === "122" && (
-      //     <div className="flex items-center gap-2 bg-purple-100 p-1 rounded-md">
-      //       <CreditCard className="text-purple-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-purple-800">
-      //         Invalid Card
-      //       </span>
-      //     </div>
-      //   )}
-      //   {response === "00" && (
-      //     <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
-      //       <AlertTriangle className="text-gray-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-gray-800">
-      //         Invalid Amount
-      //       </span>
-      //     </div>
-      //   )}
-      // </div>
     },
     header: ({ column }) => {
       return (
@@ -447,8 +407,30 @@ export function TransactionTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  // const [columnVisibility, setColumnVisibility] =
+  //   React.useState<VisibilityState>({});
+
+  const [columnVisibility, setColumnVisibility] = React.useState({
+    id: true,
+    atm_id: true,
+    created_at: true,
+    response: true,
+    pan: false,
+    transaction_type: true,
+    stan: false,
+    acquirer_channel: false,
+    acquirer_payment_entity: false,
+    issuer_channel: false,
+    product: false,
+    message_type: false,
+    pos_entry_mode: false,
+    settlement_date: false,
+    payment_company: false,
+    amount_transaction: true,
+    currency_transaction: false,
+    actions: false,
+  });
+
   const [rowSelection, setRowSelection] = React.useState({});
   // const [chartData, setChartData] = useState<ChartDataItem[]>([]);
 
@@ -471,12 +453,22 @@ export function TransactionTable() {
   const [horizontalChartData, setHorizontalChartData] = useState<
     HorizontalChartDataItem[]
   >([
-    { transaction: "member", decliners: 0, fill: "var(--color-member)" },
-    { transaction: "network", decliners: 0, fill: "var(--color-network)" },
+    { transaction: "scb", decliners: 0, fill: "var(--color-scb)" },
+    { transaction: "bahl", decliners: 0, fill: "var(--color-bahl)" },
+    { transaction: "hbl", decliners: 0, fill: "var(--color-hbl)" },
+    { transaction: "national", decliners: 0, fill: "var(--color-national)" },
+    { transaction: "bop", decliners: 0, fill: "var(--color-bop)" },
   ]);
 
+  const getCurrentTimeWithOffset = (offsetInHours: number): string => {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000; // Convert to UTC
+    const targetTime = new Date(utc + offsetInHours * 3600000); // Apply offset
+    return targetTime.toTimeString().split(" ")[0]; // Get "HH:mm:ss"
+  };
+
   const [areaChartData, setAreaChartData] = useState<AreaChartDataItem[]>([
-    { time: "", transactions: 0, amount: 0 },
+    { time: getCurrentTimeWithOffset(0), transactions: 0, amount: 0 }, // Adjust to UTC-5
   ]);
 
   const socketRef = useRef<Socket | null>(null);
@@ -497,40 +489,11 @@ export function TransactionTable() {
         return [...prevData, newEntry];
       });
 
-      // setChartData((prevChartData) => {
-      //   if (id !== undefined) {
-      //     if (newEntry.atm_id === Number(id)) {
-      //       return prevChartData.map((item) => ({
-      //         ...item,
-      //         lowCash: item.lowCash + (newEntry.failure_reason === 1 ? 1 : 0),
-      //         invalidPin:
-      //           item.invalidPin + (newEntry.failure_reason === 2 ? 1 : 0),
-      //         rejectedByIssuer:
-      //           item.rejectedByIssuer + (newEntry.failure_reason === 3 ? 1 : 0),
-      //         networkFailure:
-      //           item.networkFailure + (newEntry.failure_reason === 4 ? 1 : 0),
-      //         timeOut: item.timeOut + (newEntry.failure_reason === 5 ? 1 : 0),
-      //       }));
-      //     }
-
-      //     return prevChartData;
-      //   }
-      //   return prevChartData.map((item) => ({
-      //     ...item,
-      //     lowCash: item.lowCash + (newEntry.failure_reason === 1 ? 1 : 0),
-      //     invalidPin: item.invalidPin + (newEntry.failure_reason === 2 ? 1 : 0),
-      //     rejectedByIssuer:
-      //       item.rejectedByIssuer + (newEntry.failure_reason === 3 ? 1 : 0),
-      //     networkFailure:
-      //       item.networkFailure + (newEntry.failure_reason === 4 ? 1 : 0),
-      //     timeOut: item.timeOut + (newEntry.failure_reason === 5 ? 1 : 0),
-      //   }));
-      // });
-
       setChartData((prevChartData) => {
+        let updatedData;
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            return prevChartData.map((item) => {
+            updatedData = prevChartData.map((item) => {
               if (
                 item.failures === "lowCash" &&
                 newEntry.failure_reason === 1
@@ -563,63 +526,107 @@ export function TransactionTable() {
               }
               return item;
             });
+          } else {
+            updatedData = prevChartData;
           }
-
-          return prevChartData;
+        } else {
+          updatedData = prevChartData.map((item) => {
+            if (item.failures === "lowCash" && newEntry.failure_reason === 1) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (
+              item.failures === "invalidPin" &&
+              newEntry.failure_reason === 2
+            ) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (
+              item.failures === "rejectedByIssuer" &&
+              newEntry.failure_reason === 3
+            ) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (
+              item.failures === "networkFailure" &&
+              newEntry.failure_reason === 4
+            ) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            if (item.failures === "timeOut" && newEntry.failure_reason === 5) {
+              return { ...item, reasons: item.reasons + 1 };
+            }
+            return item;
+          });
         }
 
-        return prevChartData.map((item) => {
-          if (item.failures === "lowCash" && newEntry.failure_reason === 1) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (item.failures === "invalidPin" && newEntry.failure_reason === 2) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (
-            item.failures === "rejectedByIssuer" &&
-            newEntry.failure_reason === 3
-          ) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (
-            item.failures === "networkFailure" &&
-            newEntry.failure_reason === 4
-          ) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          if (item.failures === "timeOut" && newEntry.failure_reason === 5) {
-            return { ...item, reasons: item.reasons + 1 };
-          }
-          return item;
-        });
+        return updatedData.sort((a, b) => b.reasons - a.reasons);
       });
 
       setHorizontalChartData((prevChartData) => {
+        let updatedData;
         if (id !== undefined) {
           if (newEntry.atm_id === Number(id)) {
-            return prevChartData.map((item) => {
-              if (item.transaction === "member" && newEntry.member_decliner) {
+            updatedData = prevChartData.map((item) => {
+              if (
+                item.transaction === "scb" &&
+                newEntry.decliner_reason === 1
+              ) {
                 return { ...item, decliners: item.decliners + 1 };
               }
-              if (item.transaction === "network" && !newEntry.member_decliner) {
+              if (
+                item.transaction === "bahl" &&
+                newEntry.decliner_reason === 2
+              ) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              if (
+                item.transaction === "hbl" &&
+                newEntry.decliner_reason === 3
+              ) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              if (
+                item.transaction === "national" &&
+                newEntry.decliner_reason === 4
+              ) {
+                return { ...item, decliners: item.decliners + 1 };
+              }
+              if (
+                item.transaction === "bop" &&
+                newEntry.decliner_reason === 5
+              ) {
                 return { ...item, decliners: item.decliners + 1 };
               }
               return item;
             });
+          } else {
+            updatedData = prevChartData;
           }
-
-          return prevChartData;
+        } else {
+          updatedData = prevChartData.map((item) => {
+            if (item.transaction === "scb" && newEntry.decliner_reason === 1) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (item.transaction === "bahl" && newEntry.decliner_reason === 2) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (item.transaction === "hbl" && newEntry.decliner_reason === 3) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (
+              item.transaction === "national" &&
+              newEntry.decliner_reason === 4
+            ) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            if (item.transaction === "bop" && newEntry.decliner_reason === 5) {
+              return { ...item, decliners: item.decliners + 1 };
+            }
+            return item;
+          });
         }
 
-        return prevChartData.map((item) => {
-          if (item.transaction === "member" && newEntry.member_decliner) {
-            return { ...item, decliners: item.decliners + 1 };
-          }
-          if (item.transaction === "network" && !newEntry.member_decliner) {
-            return { ...item, decliners: item.decliners + 1 };
-          }
-          return item;
-        });
+        return updatedData.sort((a, b) => b.decliners - a.decliners);
       });
 
       setAreaChartData((prevChartData) => {
@@ -712,6 +719,8 @@ export function TransactionTable() {
       console.error("Error fetching data:", error);
     }
   };
+
+  console.log("Fetched Data", filteredData);
 
   useEffect(() => {
     fetchData();
@@ -901,8 +910,8 @@ export function TransactionTable() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border h-[70vh] overflow-auto">
-                <Table className="min-w-full table-auto bg-gray-50 border-collapse">
+              <div className="rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
+                <Table className="min-w-full table-auto bg-gray-50 border-collapse rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
                   <TableHeader className="bg-gray-800">
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow
@@ -1036,8 +1045,8 @@ export function TransactionTable() {
           </DrawerContent>
         </Drawer>
       </div>
-      <div className="rounded-md border">
-        <Table className="min-w-full table-auto bg-gray-50 border-collapse">
+      <div className="rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
+        <Table className="min-w-full table-auto bg-gray-50 border-collapse rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
           <TableHeader className="bg-gray-800">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
