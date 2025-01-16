@@ -11,7 +11,20 @@ interface AtmTableNotesProps {
 const AtmTableNotes: React.FC<AtmTableNotesProps> = ({ atmId }) => {
   const [cassetteData, setCassetteData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDataFetched, setIsDataFetched] = useState(false); // Flag to track if data is fetched
+
+  const [updatedItemId, setUpdatedItemId] = useState<number | null>(null);
+
+  // Simulate update by watching cassetteData for changes
+  useEffect(() => {
+    // Example logic to detect an update (adjust based on your actual update mechanism)
+    if (cassetteData.length > 0) {
+      const updatedItem = cassetteData.find((item) => item.isUpdated);
+      if (updatedItem) {
+        setUpdatedItemId(updatedItem.id);
+        setTimeout(() => setUpdatedItemId(null), 1000); // Reset after animation
+      }
+    }
+  }, [cassetteData]);
 
   // Function to fetch the data initially
   const fetchData = async () => {
@@ -35,24 +48,19 @@ const AtmTableNotes: React.FC<AtmTableNotesProps> = ({ atmId }) => {
   };
 
   useEffect(() => {
-    // Fetch data whenever atmId changes
     console.log("Fetching data for ATM ID:", atmId);
 
-    // Fetch initial data
     fetchData();
 
-    // Subscribe to real-time changes for this atmId
     const channel = supabase
       .channel(`public:CassetteData:${atmId}`)
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "CassetteData" },
         (payload) => {
-          // Handle real-time updates
           console.log("PayloadPayload", payload, atmId);
 
           if (payload.new && payload.new.atm_id === atmId) {
-            // Update cassette data only if the atm_id matches
             setCassetteData((prevData) =>
               prevData.map((item) =>
                 item.atm_id === payload.new.atm_id && item.id === payload.new.id
@@ -65,33 +73,36 @@ const AtmTableNotes: React.FC<AtmTableNotesProps> = ({ atmId }) => {
       )
       .subscribe();
 
-    // Cleanup the subscription on component unmount or when atmId changes
     return () => {
       channel.unsubscribe();
     };
-  }, [atmId]); // Add atmId as a dependency
+  }, [atmId]);
 
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-wrap">
-      <AnimatePresence>
-        {cassetteData.map((item) => (
-          <motion.div
-            key={item.id}
-            className="flex justify-between "
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Badge variant="outline" className="w-36 m-1">
-              <Banknote className="w-4 me-1 text-green-700" />
+      {cassetteData.map((item) => (
+        <motion.div
+          key={`${item.id}-${item.notesRemaining}`}
+          className="m-1 rounded-md border"
+          animate={{
+            y: [0, -7, 0],
+            backgroundColor: ["#FFF", "#6ee7b7", "#FFF"],
+          }}
+          transition={{
+            duration: 0.7,
+            ease: "easeIn",
+          }}
+        >
+          <Badge variant="outline" className="w-36 border-transparent">
+            <Banknote className="w-4 me-1 text-green-700 pb-0" />
+            <p className="text-nowrap">
               {item.denomination} : {item.notesRemaining}
-            </Badge>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            </p>
+          </Badge>
+        </motion.div>
+      ))}
     </div>
   );
 };
