@@ -100,8 +100,8 @@ export const columns: ColumnDef<any>[] = [
         aria-label="Select row"
       />
     ),
-    enableSorting: false,
-    enableHiding: false,
+    enableSorting: true,
+    enableHiding: true,
   },
   {
     accessorKey: "id",
@@ -139,7 +139,7 @@ export const columns: ColumnDef<any>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Created At
+          Transaction Time
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -152,46 +152,6 @@ export const columns: ColumnDef<any>[] = [
       const response: string | null = row.getValue("response") as string | null;
 
       return response;
-      // <div className="flex items-center gap-2 p-2 rounded-md">
-      //   {response === "200" && (
-      //     <div className="flex items-center gap-2 bg-green-100 p-1 rounded-md">
-      //       <CheckCircle className="text-green-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-green-800">
-      //         Approved
-      //       </span>
-      //     </div>
-      //   )}
-      //   {response === "120" && (
-      //     <div className="flex items-center gap-2 bg-red-100 p-1 rounded-md">
-      //       <XCircle className="text-red-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-red-800">Declined</span>
-      //     </div>
-      //   )}
-      //   {response === "121" && (
-      //     <div className="flex items-center gap-2 bg-yellow-100 p-1 rounded-md">
-      //       <DollarSign className="text-yellow-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-yellow-800">
-      //         Insufficient Funds
-      //       </span>
-      //     </div>
-      //   )}
-      //   {response === "122" && (
-      //     <div className="flex items-center gap-2 bg-purple-100 p-1 rounded-md">
-      //       <CreditCard className="text-purple-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-purple-800">
-      //         Invalid Card
-      //       </span>
-      //     </div>
-      //   )}
-      //   {response === "00" && (
-      //     <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
-      //       <AlertTriangle className="text-gray-500 w-5 h-5" />
-      //       <span className="text-sm font-medium text-gray-800">
-      //         Invalid Amount
-      //       </span>
-      //     </div>
-      //   )}
-      // </div>
     },
     header: ({ column }) => {
       return (
@@ -447,8 +407,30 @@ export function TransactionTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  // const [columnVisibility, setColumnVisibility] =
+  //   React.useState<VisibilityState>({});
+
+  const [columnVisibility, setColumnVisibility] = React.useState({
+    id: true,
+    atm_id: true,
+    created_at: true,
+    response: true,
+    pan: false,
+    transaction_type: true,
+    stan: false,
+    acquirer_channel: false,
+    acquirer_payment_entity: false,
+    issuer_channel: false,
+    product: false,
+    message_type: false,
+    pos_entry_mode: false,
+    settlement_date: false,
+    payment_company: false,
+    amount_transaction: true,
+    currency_transaction: false,
+    actions: false,
+  });
+
   const [rowSelection, setRowSelection] = React.useState({});
   // const [chartData, setChartData] = useState<ChartDataItem[]>([]);
 
@@ -738,6 +720,8 @@ export function TransactionTable() {
     }
   };
 
+  console.log("Fetched Data", filteredData);
+
   useEffect(() => {
     fetchData();
     socketRef.current = io("http://localhost:3000");
@@ -926,8 +910,8 @@ export function TransactionTable() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border h-[70vh] overflow-auto">
-                <Table className="min-w-full table-auto bg-gray-50 border-collapse">
+              <div className="rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
+                <Table className="min-w-full table-auto bg-gray-50 border-collapse rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
                   <TableHeader className="bg-gray-800">
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow
@@ -1061,8 +1045,8 @@ export function TransactionTable() {
           </DrawerContent>
         </Drawer>
       </div>
-      <div className="rounded-md border">
-        <Table className="min-w-full table-auto bg-gray-50 border-collapse">
+      <div className="rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
+        <Table className="min-w-full table-auto bg-gray-50 border-collapse rounded-b-[calc(var(--radius)-2px)] rounded-t-[calc(var(--radius)-2px)]">
           <TableHeader className="bg-gray-800">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
