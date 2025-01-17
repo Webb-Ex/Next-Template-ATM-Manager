@@ -874,7 +874,7 @@ export function TransactionTable() {
 
       <div className="flex items-center py-4">
         <Input
-          placeholder="Search..."
+          placeholder="Search By Transaction Type..."
           value={
             (table.getColumn("transaction_type")?.getFilterValue() as string) ??
             ""
@@ -924,7 +924,7 @@ export function TransactionTable() {
               <div className="flex items-center py-4">
                 <CardTitle>Transaction Lists</CardTitle>
                 <Input
-                  placeholder="Search..."
+                  placeholder="Search By Transaction Type..."
                   value={
                     (table
                       .getColumn("transaction_type")
