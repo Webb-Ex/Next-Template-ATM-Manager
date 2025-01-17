@@ -517,14 +517,21 @@ export function TransactionTable() {
 
       if (!data) return;
 
-      setFilteredData(data);
+      const updatedData = (data || []).map((item) => ({
+        ...item,
+        response: Math.random() > 0.5 ? "Approved" : "Rejected",
+      }));
+
+      // Set the updated data to the filtered data state
+      setFilteredData(updatedData);
 
       // Update chartData
       setChartData((prevChartData) => {
         const updatedData = prevChartData.map((item) => {
           const count = data.filter((entry) => {
             if (item.failures === "lowCash") return entry.failure_reason === 1;
-            if (item.failures === "invalidPin") return entry.failure_reason === 2;
+            if (item.failures === "invalidPin")
+              return entry.failure_reason === 2;
             if (item.failures === "rejectedByIssuer")
               return entry.failure_reason === 3;
             if (item.failures === "networkFailure")
@@ -544,7 +551,8 @@ export function TransactionTable() {
             if (item.transaction === "scb") return entry.decliner_reason === 1;
             if (item.transaction === "bahl") return entry.decliner_reason === 2;
             if (item.transaction === "hbl") return entry.decliner_reason === 3;
-            if (item.transaction === "national") return entry.decliner_reason === 4;
+            if (item.transaction === "national")
+              return entry.decliner_reason === 4;
             if (item.transaction === "bop") return entry.decliner_reason === 5;
             return false;
           }).length;
@@ -555,27 +563,34 @@ export function TransactionTable() {
 
       // Update areaChartData
       setAreaChartData((prevAreaChartData) => {
-        const updatedData = data.reduce((acc, entry) => {
-          const entryTime = new Date(entry.created_at);
-          const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "HH:mm:ss"
+        const updatedData = data.reduce(
+          (acc, entry) => {
+            const entryTime = new Date(entry.created_at);
+            const timeKey = entryTime.toISOString().split("T")[1].split(".")[0]; // "HH:mm:ss"
 
-          const existingTimeSlot = acc.find((item: { time: string; }) => item.time === timeKey);
+            const existingTimeSlot = acc.find(
+              (item: { time: string }) => item.time === timeKey
+            );
 
-          if (existingTimeSlot) {
-            existingTimeSlot.transactions += 1;
-            existingTimeSlot.amount += entry.amount_transaction;
-          } else {
-            acc.push({
-              time: timeKey,
-              transactions: 1,
-              amount: entry.amount_transaction,
-            });
-          }
+            if (existingTimeSlot) {
+              existingTimeSlot.transactions += 1;
+              existingTimeSlot.amount += entry.amount_transaction;
+            } else {
+              acc.push({
+                time: timeKey,
+                transactions: 1,
+                amount: entry.amount_transaction,
+              });
+            }
 
-          return acc;
-        }, [...prevAreaChartData]);
+            return acc;
+          },
+          [...prevAreaChartData]
+        );
 
-        return updatedData.sort((a: { time: string; }, b: { time: any; }) => a.time.localeCompare(b.time));
+        return updatedData.sort((a: { time: string }, b: { time: any }) =>
+          a.time.localeCompare(b.time)
+        );
       });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -583,15 +598,18 @@ export function TransactionTable() {
   };
 
   useEffect(() => {
-
     fetchData();
 
     const channel = supabase
       .channel("public:TransactionData")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "TransactionData" }, (payload) => {
-        const newEntry = payload.new as any;
-        InsertTransactionData(newEntry);
-      })
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "TransactionData" },
+        (payload) => {
+          const newEntry = payload.new as any;
+          InsertTransactionData(newEntry);
+        }
+      )
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "TransactionData" },
@@ -602,7 +620,6 @@ export function TransactionTable() {
         }
       )
       .subscribe();
-
 
     return () => {
       channel.unsubscribe();
@@ -624,9 +641,12 @@ export function TransactionTable() {
       const updatedData = prevData.map((item) => {
         const isMatchingFailure =
           (item.failures === "lowCash" && updatedEntry.failure_reason === 1) ||
-          (item.failures === "invalidPin" && updatedEntry.failure_reason === 2) ||
-          (item.failures === "rejectedByIssuer" && updatedEntry.failure_reason === 3) ||
-          (item.failures === "networkFailure" && updatedEntry.failure_reason === 4) ||
+          (item.failures === "invalidPin" &&
+            updatedEntry.failure_reason === 2) ||
+          (item.failures === "rejectedByIssuer" &&
+            updatedEntry.failure_reason === 3) ||
+          (item.failures === "networkFailure" &&
+            updatedEntry.failure_reason === 4) ||
           (item.failures === "timeOut" && updatedEntry.failure_reason === 5);
 
         if (isMatchingFailure) {
@@ -653,7 +673,8 @@ export function TransactionTable() {
           (item.transaction === "scb" && updatedEntry.decliner_reason === 1) ||
           (item.transaction === "bahl" && updatedEntry.decliner_reason === 2) ||
           (item.transaction === "hbl" && updatedEntry.decliner_reason === 3) ||
-          (item.transaction === "national" && updatedEntry.decliner_reason === 4) ||
+          (item.transaction === "national" &&
+            updatedEntry.decliner_reason === 4) ||
           (item.transaction === "bop" && updatedEntry.decliner_reason === 5);
 
         if (isMatchingTransaction) {
@@ -674,15 +695,14 @@ export function TransactionTable() {
       return prevData.map((item) =>
         item.time === timeKey
           ? {
-            ...item,
-            transactions: item.transactions + 1,
-            amount: item.amount + updatedEntry.amount_transaction,
-          }
+              ...item,
+              transactions: item.transactions + 1,
+              amount: item.amount + updatedEntry.amount_transaction,
+            }
           : item
       );
     });
   };
-
 
   const InsertTransactionData = (newEntry: any) => {
     if (!newEntry) return;
@@ -699,10 +719,16 @@ export function TransactionTable() {
         if (item.failures === "invalidPin" && newEntry.failure_reason === 2) {
           return { ...item, reasons: item.reasons + 1 };
         }
-        if (item.failures === "rejectedByIssuer" && newEntry.failure_reason === 3) {
+        if (
+          item.failures === "rejectedByIssuer" &&
+          newEntry.failure_reason === 3
+        ) {
           return { ...item, reasons: item.reasons + 1 };
         }
-        if (item.failures === "networkFailure" && newEntry.failure_reason === 4) {
+        if (
+          item.failures === "networkFailure" &&
+          newEntry.failure_reason === 4
+        ) {
           return { ...item, reasons: item.reasons + 1 };
         }
         if (item.failures === "timeOut" && newEntry.failure_reason === 5) {
@@ -746,13 +772,21 @@ export function TransactionTable() {
       if (existingTimeSlot) {
         return prevData.map((item) =>
           item.time === timeKey
-            ? { ...item, transactions: item.transactions + 1, amount: item.amount + newEntry.amount_transaction }
+            ? {
+                ...item,
+                transactions: item.transactions + 1,
+                amount: item.amount + newEntry.amount_transaction,
+              }
             : item
         );
       } else {
         return [
           ...prevData,
-          { time: timeKey, transactions: 1, amount: newEntry.amount_transaction },
+          {
+            time: timeKey,
+            transactions: 1,
+            amount: newEntry.amount_transaction,
+          },
         ];
       }
     });
@@ -783,9 +817,9 @@ export function TransactionTable() {
             const updatedData = prev.map((item, index) =>
               index === lastIndex
                 ? {
-                  ...item,
-                  response: Math.random() > 0.5 ? "Approved" : "Rejected",
-                }
+                    ...item,
+                    response: Math.random() > 0.5 ? "Approved" : "Rejected",
+                  }
                 : item
             );
             return updatedData;
@@ -797,20 +831,23 @@ export function TransactionTable() {
     }
   }, [filteredData.length]);
 
+  const MAX_RECORDS = 200;
+
+  const slicedData = React.useMemo(() => {
+    return filteredData.slice(Math.max(filteredData.length - MAX_RECORDS, 0));
+  }, [filteredData]);
+
   const table = useReactTable({
-    data: filteredData,
+    data: slicedData, // Use slicedData instead of the original filteredData
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // Remove pagination-related configuration
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    initialState: {
-      pagination: { pageSize: 50 }, // Set initial page size to 50
-    },
     state: {
       sorting,
       columnFilters,
@@ -819,10 +856,11 @@ export function TransactionTable() {
     },
   });
 
+  console.log("Test");
+
   return (
     <div className="w-full">
       <div className="flex gap-[20px]">
-
         <div className="w-1/2">
           <BarGraph chartData={chartData} />
         </div>
@@ -943,9 +981,9 @@ export function TransactionTable() {
                             {header.isPlaceholder
                               ? null
                               : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
                           </TableHead>
                         ))}
                       </TableRow>
@@ -1005,8 +1043,10 @@ export function TransactionTable() {
               </div>
               <div className="flex items-center space-x-6 lg:space-x-8 mt-4">
                 <div className="flex items-center space-x-2">
-                  <p className="text-sm font-medium">Rows per page</p>
-                  <Select
+                  <p className="text-sm font-medium">
+                    Showing recent 200 records
+                  </p>
+                  {/* <Select
                     value={`${table.getState().pagination.pageSize}`}
                     onValueChange={(value) => {
                       table.setPageSize(Number(value));
@@ -1024,9 +1064,9 @@ export function TransactionTable() {
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
+                  </Select> */}
                 </div>
-                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                {/* <div className="flex w-[100px] items-center justify-center text-sm font-medium">
                   Page {table.getState().pagination.pageIndex + 1} of{" "}
                   {table.getPageCount()}
                 </div>
@@ -1067,7 +1107,7 @@ export function TransactionTable() {
                     <span className="sr-only">Go to last page</span>
                     <ChevronsRight />
                   </Button>
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </DrawerContent>
@@ -1089,9 +1129,9 @@ export function TransactionTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -1145,8 +1185,10 @@ export function TransactionTable() {
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8 mt-4">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
-          <Select
+          {/* <p className="text-sm font-medium">Rows per page</p> */}
+          <p className="text-sm font-medium">Showing recent 200 records</p>
+
+          {/* <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value));
@@ -1156,15 +1198,15 @@ export function TransactionTable() {
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[50, 100, 150, 200].map((pageSize) => (
+              {[10, 100, 150, 200].map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        {/* <div className="flex w-[100px] items-center justify-center text-sm font-medium">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}
         </div>
@@ -1205,7 +1247,7 @@ export function TransactionTable() {
             <span className="sr-only">Go to last page</span>
             <ChevronsRight />
           </Button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

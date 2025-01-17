@@ -129,9 +129,7 @@ async function insertTransactionData() {
           Math.floor(Math.random() * placeholder_data[0].payment_company.length)
         ],
       actions: true,
-      amount_transaction: Math.floor(
-        Math.random() * (1000000 - 100000) + 100000
-      ),
+      amount_transaction: Math.floor(Math.random() * (15000 - 5000) + 5000),
       currency_transaction: "PKR",
       member_transaction:
         placeholder_data[0].member_transaction[

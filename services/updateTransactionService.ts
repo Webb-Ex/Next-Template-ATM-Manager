@@ -101,7 +101,7 @@ async function insertTransactionData() {
         ],
       actions: true,
       amount_transaction: Math.floor(
-        Math.random() * (1000000 - 100000) + 100000
+        Math.random() * (15000 - 5000) + 5000
       ),
       currency_transaction: "PKR",
       member_transaction:
